@@ -10337,6 +10337,113 @@
             "user_id": "ccb397ad-0de7-46e7-bff0-42452f11dd5e",
             "state_id": null
         }
+    ],
+    "ranks": [
+        {
+            "id": "de5e6ae8-902c-4b06-aa8e-8fbca99026f3",
+            "name": "vojín (voj.)",
+            "name_en": "Private (PVT)"
+        },
+        {
+            "name": "svobodník (svob.)",
+            "name_en": "Private First Class (PFC)",
+            "id": "f3038058-e1fa-4f7c-9e50-7b1d99998d37"
+        },
+        
+        {
+            "name": "desátník (des.)",
+            "name_en": "Corporal (CPL)",
+            "id": "a3cdae76-1c7d-409c-8bed-9e922c066bce"
+        },
+        {
+            "name": "četař (čet.)",
+            "name_en": "Sergeant (SGT)",
+            "id": "a17e81a6-776b-4883-a04d-cbd4f07ad095"
+        },
+        {
+            "name": "rotný (rtn.)",
+            "name_en": "Staff Sergeant (SSG)",
+            "id": "a9043224-9c3b-4562-a329-997fba9237d0"
+        },
+        
+        {
+            "name": "rotmistr (rtm.)",
+            "name_en": "Sergeant First Class (SFC)",
+            "id": "72294ac5-1823-4164-9805-60a0aaa39296"
+        },
+        {
+            "name": "nadrotmistr (nrtm.)",
+            "name_en": "Master Sergeant (MSG)",
+            "id": "453dff9e-fab2-41d0-8bef-ca76c78e79c8"
+        },
+        {
+            "name": "praporčík (prap.)",
+            "name_en": "Chief Warrant Officer (CW2)",
+            "id": "6a324f4a-2162-4fe7-a47c-8be1f3c9452b"
+        },
+        {
+            "name": "nadpraporčík (nprap.)",
+            "name_en": "Chief Warrant Officer (CW3)",
+            "id": "34cfd57e-6a09-4423-8025-b44d6dbce774"
+        },
+        {
+            "name": "štábní praporčík (št. prap.)",
+            "name_en": "Master Warrant Officer (MW4)",
+            "id": "841fa09f-625e-49b4-8872-05c43ce197cf"
+        },
+        
+        {
+            "name": "poručík (por.)",
+            "name_en": "Lieutenant (LT)",
+            "id": "3914ab9f-78bc-45ac-bb2d-59ee921f3a19"
+        },
+        {
+            "name": "nadporučík (npor.)",
+            "name_en": "First Lieutenant (1LT)",
+            "id": "437fa94e-8442-4667-af9a-8327afef9ffa"
+        },
+        {
+            "name": "kapitán (ktp.)",
+            "name_en": "Captain (CPT)",
+            "id": "a8ce2853-26ec-4e10-8bbe-899cc296a35f"
+        },
+        
+        {
+            "name": "major (mjr.)",
+            "name_en": "Major (MAJ)",
+            "id": "587cd381-aeec-4367-91f3-8849f900848a"
+        },
+        {
+            "name": "podplukovník (pplk.)",
+            "name_en": "Lieutenant Colonel (LTC)",
+            "id": "46a7325f-9b9e-4e80-9f17-670bd9151229"
+        },
+        {
+            "name": "plukovník (plk.)",
+            "name_en": "Colonel (COL)",
+            "id": "824533e5-eba7-45f7-80f6-e2466529e73c"
+        },
+        
+        {
+            "name": "brigádní generál (brig.gen.)",
+            "name_en": "Brigadier General (BG)",
+            "id": "9eb8d8f4-a87c-447d-aaee-c0a15cd6fbce"
+        },
+        {
+            "name": "generálmajor (genmjr.)",
+            "name_en": "Major General (MG)",
+            "id": "d65a0d25-dc39-46fa-a107-a684c9724c5e"
+        },
+        {
+            "name": "generálporučík (genpor.)",
+            "name_en": "Lieutenant General (LTG)",
+            "id": "41f0772d-738a-492d-93c1-96c9cdb5d597"
+        },
+        {
+            "name": "armádní generál (arm.gen.)",
+            "name_en": "General of the Army (GA)",
+            "id": "9234d06c-e811-4016-8ee5-f6975b4048a4"
+        }
     ]
 
 }

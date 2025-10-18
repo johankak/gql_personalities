@@ -7,6 +7,8 @@ from uoishelpers.dataloaders import readJsonFile
 from src.DBDefinitions import (
     EventModel, 
     EventInvitationModel,
+    UserRanksModel,
+    RankModel,
 )
 
 get_demodata = lambda :readJsonFile(jsonFileName="./systemdata.json")
@@ -21,6 +23,8 @@ async def initDB(asyncSessionMaker, filename="./systemdata.json"):
         dbModels = [
             EventModel, 
             EventInvitationModel,
+            UserRanksModel,
+            RankModel,
         ]
         
 
@@ -38,6 +42,8 @@ async def backupDB(asyncSessionMaker, filename="./systemdata.backup.json"):
     dbModels = [
         EventModel, 
         EventInvitationModel,
+        UserRanksModel,
+        RankModel,
     ]
     data = []
     async with asyncSessionMaker() as session:

@@ -15,6 +15,9 @@ from src.GraphTypeDefinitions import schema
 from src.DBDefinitions import startEngine, ComposeConnectionString
 from src.DBFeeder import initDB
 
+from dotenv import load_dotenv
+load_dotenv()
+
 # region logging setup
 
 logging.basicConfig(
