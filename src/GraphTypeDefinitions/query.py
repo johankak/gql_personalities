@@ -6,8 +6,10 @@ from .RanksGQLModel import RankGQLModel
 from .UserGQLModel import UserGQLModel
 from .UserRanksGQLModel import UserRanksGQLModel
 from .RanksGQLModel import RankQuery
+from .CertificateTypeGQLModel import CertificateTypeQuery
+
 @strawberry.type(description="""Type for query root""")
-class Query(EventQuery, EventInvitationQuery, RankQuery):
+class Query(EventQuery, EventInvitationQuery, RankQuery, CertificateTypeQuery):
     @strawberry.field(
         description="""Returns hello world"""
         )

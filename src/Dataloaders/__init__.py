@@ -7,6 +7,7 @@ from src.DBDefinitions import (
     EventInvitationModel,
     UserRanksModel,
     RankModel,
+    CertificateTypeModel
 
 )
 
@@ -23,6 +24,7 @@ class LoaderMap(LoaderMapBase[BaseModel]):
     EventModel: IDLoader[src.DBDefinitions.EventModel] = None
     EventInvitationModel: IDLoader[src.DBDefinitions.EventInvitationModel] = None
     RankModel: IDLoader[src.DBDefinitions.RankModel] = None
+    CertificateTypeModel: IDLoader[src.DBDefinitions.CertificateTypeModel] = None
 
     def __init__(self, session):
         super().__init__(session)
@@ -30,6 +32,8 @@ class LoaderMap(LoaderMapBase[BaseModel]):
         self.EventModel = self.get(EventModel)
         self.EventInvitationModel = self.get(EventInvitationModel)
         self.RankModel = self.get(RankModel)
+        self.CertificateTypeModel = self.get(CertificateTypeModel)
+
 
         # print(f"LoaderMap created with session: {session}")
 
