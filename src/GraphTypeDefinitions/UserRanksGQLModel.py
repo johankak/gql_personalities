@@ -36,8 +36,8 @@ from uoishelpers.gqlpermissions.UserAbsoluteAccessControlExtension import UserAb
 from .BaseGQLModel import BaseGQLModel, IDType
 
 
-RankGQLModel = typing.Annotated["RankGQLModel", strawberry.lazy(".RankGQLModel")]
-RankInputFilter = typing.Annotated["RankInputFilter", strawberry.lazy(".RankGQLModel")]
+RankGQLModel = typing.Annotated["RankGQLModel", strawberry.lazy(".RanksGQLModel")]
+RankInputFilter = typing.Annotated["RankInputFilter", strawberry.lazy(".RanksGQLModel")]
 UserGQLModel = typing.Annotated["UserGQLModel", strawberry.lazy(".UserGQLModel")]
 
 @createInputs2
@@ -126,6 +126,14 @@ class UserRanksGQLModel(BaseGQLModel):
         elif self.enddate:
             return now <= self.enddate
         return True  # No date restrictions means always valid
+
+    user: typing.Optional[UserGQLModel] = strawberry.field(
+        description="""User assigned to the invitation""",
+        permission_classes=[
+            OnlyForAuthentized
+        ],
+        resolver=ScalarResolver[UserGQLModel](fkey_field_name="user_id")
+    )
 
 @strawberry.type(description="Query operations for UserRanks")
 class UserRanksQuery:

@@ -24,8 +24,8 @@ async def initDB(asyncSessionMaker, filename="./systemdata.json"):
         dbModels = [
             EventModel, 
             EventInvitationModel,
-            UserRanksModel,
             RankModel,
+            UserRanksModel,
             CertificateTypeModel
         ]
         
