@@ -4,7 +4,7 @@ from .EventGQLModel import EventQuery
 from .EventInvitationGQLModel import EventInvitationQuery
 from .RanksGQLModel import RankGQLModel
 from .UserGQLModel import UserGQLModel
-from .UserRanksGQLModel import UserRanksGQLModel, UserRanksQuery
+from .UserRanksGQLModel import UserRankGQLModel, UserRanksQuery
 from .RanksGQLModel import RankQuery
 from .CertificateTypeGQLModel import CertificateTypeQuery
 

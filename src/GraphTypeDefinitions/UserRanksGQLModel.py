@@ -58,7 +58,7 @@ for field "rank" the filters could be
 @strawberry.federation.type(
     keys=["id"], description="""Entity representing assignment of a Rank to a User with time validity"""
 )
-class UserRanksGQLModel(BaseGQLModel):
+class UserRankGQLModel(BaseGQLModel):
 
     @classmethod
     def getLoader(cls, info: strawberry.types.Info):
@@ -138,20 +138,20 @@ class UserRanksGQLModel(BaseGQLModel):
 @strawberry.type(description="Query operations for UserRanks")
 class UserRanksQuery:
 
-    user_ranks_by_id: typing.Optional[UserRanksGQLModel] = strawberry.field(
+    user_ranks_by_id: typing.Optional[UserRankGQLModel] = strawberry.field(
         description="User rank assignment by its id",
         permission_classes=[
             OnlyForAuthentized
         ],
-        resolver=UserRanksGQLModel.load_with_loader
+        resolver=UserRankGQLModel.load_with_loader
     )
 
-    user_ranks_page: typing.List[UserRanksGQLModel] = strawberry.field(
+    user_ranks_page: typing.List[UserRankGQLModel] = strawberry.field(
         description="Selected user rank assignments",
         permission_classes=[
             OnlyForAuthentized
         ],
-        resolver=PageResolver[UserRanksGQLModel](whereType=UserRanksInputFilter)
+        resolver=PageResolver[UserRankGQLModel](whereType=UserRanksInputFilter)
     )
 
 
@@ -160,7 +160,7 @@ from uoishelpers.resolvers import InputModelMixin
     description="""UserRanks insert mutation"""
 )
 class UserRanksInsertGQLModel(InputModelMixin):
-    getLoader = UserRanksGQLModel.getLoader
+    getLoader = UserRankGQLModel.getLoader
     
     rank_id: IDType = strawberry.field(
         description="Rank id to assign",
@@ -237,34 +237,34 @@ class UserRanksMutation:
         description="""Insert a UserRanks assignment""",
         permission_classes=[
             OnlyForAuthentized,
-            SimpleInsertPermission[UserRanksGQLModel](roles=["administrátor", "personalista"])
+            SimpleInsertPermission[UserRankGQLModel](roles=["administrátor", "personalista"])
         ]
     )
     async def user_ranks_insert(
         self,
         info: strawberry.types.Info,
         user_ranks: UserRanksInsertGQLModel,
-    ) -> typing.Union[UserRanksGQLModel, InsertError[UserRanksGQLModel]]:
+    ) -> typing.Union[UserRankGQLModel, InsertError[UserRankGQLModel]]:
         # Validate that startdate is before enddate if both are provided
         if user_ranks.startdate and user_ranks.enddate:
             if user_ranks.startdate >= user_ranks.enddate:
-                return InsertError[UserRanksGQLModel](
+                return InsertError[UserRankGQLModel](
                     msg="Start date must be before end date",
                     code="d5e8f9a2-4b3c-4d5e-9f8a-1b2c3d4e5f6a",
                     location="user_ranks_insert"
                 )
         
-        return await Insert[UserRanksGQLModel].DoItSafeWay(info=info, entity=user_ranks)
+        return await Insert[UserRankGQLModel].DoItSafeWay(info=info, entity=user_ranks)
     
 
     @strawberry.mutation(
         description="""Update the UserRanks assignment""",
         permission_classes=[
             OnlyForAuthentized,
-            SimpleUpdatePermission[UserRanksGQLModel](roles=["administrátor", "personalista"])
+            SimpleUpdatePermission[UserRankGQLModel](roles=["administrátor", "personalista"])
         ],
         extensions=[
-            LoadDataExtension[UpdateError, UserRanksGQLModel]()
+            LoadDataExtension[UpdateError, UserRankGQLModel]()
         ],
     )
     async def user_ranks_update(
@@ -272,13 +272,13 @@ class UserRanksMutation:
         info: strawberry.types.Info,
         user_ranks: UserRanksUpdateGQLModel,
         db_row: typing.Any,
-    ) -> typing.Union[UserRanksGQLModel, UpdateError[UserRanksGQLModel]]:
+    ) -> typing.Union[UserRankGQLModel, UpdateError[UserRankGQLModel]]:
         # Validate dates if both are being updated
         startdate = user_ranks.startdate if user_ranks.startdate is not None else db_row.startdate
         enddate = user_ranks.enddate if user_ranks.enddate is not None else db_row.enddate
         
         if startdate and enddate and startdate >= enddate:
-            return UpdateError[UserRanksGQLModel](
+            return UpdateError[UserRankGQLModel](
                 _entity=db_row,
                 msg="Start date must be before end date",
                 code="e6f9a3b4-5c4d-5e6f-af9b-2c3d4e5f6a7b",
@@ -286,19 +286,19 @@ class UserRanksMutation:
                 _input=user_ranks
             )
         
-        return await Update[UserRanksGQLModel].DoItSafeWay(info=info, entity=user_ranks)
+        return await Update[UserRankGQLModel].DoItSafeWay(info=info, entity=user_ranks)
 
 
     @strawberry.mutation(
         description="""Delete a UserRanks assignment""",
         permission_classes=[
             OnlyForAuthentized,
-            SimpleDeletePermission[UserRanksGQLModel](roles=["administrátor", "personalista"])
+            SimpleDeletePermission[UserRankGQLModel](roles=["administrátor", "personalista"])
         ]
     )
     async def user_ranks_delete(
         self,
         info: strawberry.types.Info,
         user_ranks: UserRanksDeleteGQLModel
-    ) -> typing.Optional[DeleteError[UserRanksGQLModel]]:
-        return await Delete[UserRanksGQLModel].DoItSafeWay(info=info, entity=user_ranks)
+    ) -> typing.Optional[DeleteError[UserRankGQLModel]]:
+        return await Delete[UserRankGQLModel].DoItSafeWay(info=info, entity=user_ranks)

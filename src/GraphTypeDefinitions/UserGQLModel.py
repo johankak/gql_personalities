@@ -11,7 +11,7 @@ from uoishelpers.resolvers import (
 )
 from .EventInvitationGQLModel import EventInvitationGQLModel, EventInvitationInputFilter
 from .RanksGQLModel import RankGQLModel
-from .UserRanksGQLModel import UserRanksGQLModel, UserRanksInputFilter
+from .UserRanksGQLModel import UserRankGQLModel, UserRanksInputFilter
 
 @strawberry.federation.type(extend=True, keys=["id"])
 class UserGQLModel:
@@ -46,12 +46,12 @@ class UserGQLModel:
     #     rank_instances = ranks.scalars().all()
     #     return [RankGQLModel.from_instance(rank) for rank in rank_instances]
     
-    ranks: typing.List[UserRanksGQLModel] = strawberry.field(
+    ranks: typing.List[UserRankGQLModel] = strawberry.field(
         description="Links to events where the user has been invited",
         permission_classes=[
             OnlyForAuthentized
         ],
         
-        resolver=VectorResolver[UserRanksGQLModel](fkey_field_name="user_id", whereType=UserRanksInputFilter)
+        resolver=VectorResolver[UserRankGQLModel](fkey_field_name="user_id", whereType=UserRanksInputFilter)
     )
     # async def event_invitations(self, info:strawberry.types.Info)
