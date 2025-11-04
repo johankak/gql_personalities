@@ -12,6 +12,8 @@ from .EventInvitationModel import EventInvitationModel
 from .UserRanksModel import UserRanksModel
 from .RanksModel import RankModel
 from .CertificateTypeModel import CertificateTypeModel
+from .CertificateCategoryModel import CertificateCategoryModel
+
 
 async def startEngine(connectionstring, makeDrop=False, makeUp=True):
     """Provede nezbytne ukony a vrati asynchronni SessionMaker"""

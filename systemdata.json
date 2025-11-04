@@ -10505,6 +10505,29 @@
             "name": "STANAG Russian", "id": "43089ad0-722c-4f13-9a89-c809b2e3ecee"},
         {
             "name": "STANAG Polish", "id": "634fe5b9-8494-4586-b67a-191157c0ed60"}
-    ]
+    ],
 
+    "personalitiescertificatecategories": [
+        {
+            "name": "jazykové",
+            "name_en": "language",
+            "id": "3400df72-2c00-4b6a-8382-881450df3f9d"
+        },
+        {
+            "name": "vědecké",
+            "name_en": "science",
+            "id": "bc988cb6-38a7-45a1-97ec-d1e220621355"
+        },
+        {
+            "name": "sportovní",
+            "name_en": "sport",
+            "id": "3f1351ca-0624-43bb-9c93-23e6478fb1c1"
+        },
+        {
+            "name": "pracovní",
+            "name_en": "work",
+            "id": "e4713dd6-69e6-4d35-964b-1bca141899eb"
+        }
+    ]
 }
+
