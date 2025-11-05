@@ -10,7 +10,7 @@ from .BaseModel import BaseModel
 from .EventDBModel import EventModel
 from .EventInvitationModel import EventInvitationModel
 from .UserRanksModel import UserRanksModel
-from .RanksModel import RankModel
+from .RankModel import RankModel
 from .CertificateTypeModel import CertificateTypeModel
 from .CertificateCategoryModel import CertificateCategoryModel
 
