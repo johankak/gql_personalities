@@ -21,7 +21,7 @@ from .BaseModel import BaseModel, UUIDColumn, UUIDFKey, IDType
 # je-li treba, muzete definovat modely obsahujici jen id polozku, na ktere se budete odkazovat
 #
 ###########################################################################################################################
-class UserRanksModel(BaseModel):
+class UserRankModel(BaseModel):
     __tablename__ = "user_ranks"
 
     path_attribute_name = "path"

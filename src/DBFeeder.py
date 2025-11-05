@@ -7,7 +7,7 @@ from uoishelpers.dataloaders import readJsonFile
 from src.DBDefinitions import (
     EventModel, 
     EventInvitationModel,
-    UserRanksModel,
+    UserRankModel,
     RankModel,
     CertificateTypeModel,
     CertificateCategoryModel
@@ -27,7 +27,7 @@ async def initDB(asyncSessionMaker, filename="./systemdata.json"):
             EventModel, 
             EventInvitationModel,
             RankModel,
-            UserRanksModel,
+            UserRankModel,
             CertificateTypeModel,
             CertificateCategoryModel
         ]
@@ -47,7 +47,7 @@ async def backupDB(asyncSessionMaker, filename="./systemdata.backup.json"):
     dbModels = [
         EventModel, 
         EventInvitationModel,
-        UserRanksModel,
+        UserRankModel,
         RankModel,
         CertificateTypeModel,
         CertificateCategoryModel

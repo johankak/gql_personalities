@@ -5,7 +5,7 @@ from src.DBDefinitions import BaseModel
 from src.DBDefinitions import (
     EventModel,
     EventInvitationModel,
-    UserRanksModel,
+    UserRankModel,
     RankModel,
     CertificateTypeModel,
     CertificateCategoryModel
@@ -37,7 +37,7 @@ class LoaderMap(LoaderMapBase[BaseModel]):
         self.EventInvitationModel = self.get(EventInvitationModel)
         self.RankModel = self.get(RankModel)
         self.CertificateTypeModel = self.get(CertificateTypeModel)
-        self.UserRanksModel = self.get(UserRanksModel)
+        self.UserRanksModel = self.get(UserRankModel)
         self.CertificateCategoryModel = self.get(CertificateCategoryModel)
 
 
