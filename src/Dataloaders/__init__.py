@@ -26,7 +26,7 @@ class LoaderMap(LoaderMapBase[BaseModel]):
     EventInvitationModel: IDLoader[src.DBDefinitions.EventInvitationModel] = None
     RankModel: IDLoader[src.DBDefinitions.RankModel] = None
     CertificateTypeModel: IDLoader[src.DBDefinitions.CertificateTypeModel] = None
-    UserRanksModel: IDLoader[src.DBDefinitions.UserRanksModel] = None
+    UserRanksModel: IDLoader[src.DBDefinitions.UserRankModel] = None
     CertificateCategoryModel: IDLoader[src.DBDefinitions.CertificateCategoryModel] = None
 
 

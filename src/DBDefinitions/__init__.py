@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from .BaseModel import BaseModel
 from .EventDBModel import EventModel
 from .EventInvitationModel import EventInvitationModel
-from .UserRanksModel import UserRanksModel
+from .UserRankModel import UserRanksModel
 from .RankModel import RankModel
 from .CertificateTypeModel import CertificateTypeModel
 from .CertificateCategoryModel import CertificateCategoryModel
