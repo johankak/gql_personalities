@@ -62,7 +62,7 @@ class UserRankGQLModel(BaseGQLModel):
 
     @classmethod
     def getLoader(cls, info: strawberry.types.Info):
-        return getLoadersFromInfo(info).UserRanksModel
+        return getLoadersFromInfo(info).UserRankModel
 
     rank_id: typing.Optional[IDType] = strawberry.field(
         description="""Rank assigned to the user""",
@@ -135,10 +135,10 @@ class UserRankGQLModel(BaseGQLModel):
         resolver=ScalarResolver[UserGQLModel](fkey_field_name="user_id")
     )
 
-@strawberry.type(description="Query operations for UserRanks")
+@strawberry.type(description="Query operations for UserRank")
 class UserRankQuery:
 
-    user_ranks_by_id: typing.Optional[UserRankGQLModel] = strawberry.field(
+    user_rank_by_id: typing.Optional[UserRankGQLModel] = strawberry.field(
         description="User rank assignment by its id",
         permission_classes=[
             OnlyForAuthentized
@@ -146,7 +146,7 @@ class UserRankQuery:
         resolver=UserRankGQLModel.load_with_loader
     )
 
-    user_ranks_page: typing.List[UserRankGQLModel] = strawberry.field(
+    user_rank_page: typing.List[UserRankGQLModel] = strawberry.field(
         description="Selected user rank assignments",
         permission_classes=[
             OnlyForAuthentized
@@ -157,9 +157,9 @@ class UserRankQuery:
 
 from uoishelpers.resolvers import InputModelMixin
 @strawberry.input(
-    description="""UserRanks insert mutation"""
+    description="""UserRank insert mutation"""
 )
-class UserRanksInsertGQLModel(InputModelMixin):
+class UserRankInsertGQLModel(InputModelMixin):
     getLoader = UserRankGQLModel.getLoader
     
     rank_id: IDType = strawberry.field(
@@ -188,9 +188,9 @@ class UserRanksInsertGQLModel(InputModelMixin):
     createdby_id: strawberry.Private[IDType] = None
 
 @strawberry.input(
-    description="""UserRanks update mutation"""
+    description="""UserRank update mutation"""
 )
-class UserRanksUpdateGQLModel:
+class UserRankUpdateGQLModel:
     id: IDType = strawberry.field(
         description="""Id"""
     )
@@ -217,48 +217,48 @@ class UserRanksUpdateGQLModel:
     changedby_id: strawberry.Private[IDType] = None
 
 @strawberry.input(
-    description="""UserRanks delete mutation"""
+    description="""UserRank delete mutation"""
 )
-class UserRanksDeleteGQLModel:
+class UserRankDeleteGQLModel:
     id: IDType = strawberry.field(
-        description="""UserRanks id"""
+        description="""UserRank id"""
     )
     lastchange: datetime.datetime = strawberry.field(
-        description="""UserRanks lastchange"""
+        description="""UserRank lastchange"""
     )
 
 
 @strawberry.type(
-    description="""UserRanks mutation"""
+    description="""UserRank mutation"""
 )
-class UserRanksMutation:
+class UserRankMutation:
     
     @strawberry.mutation(
-        description="""Insert a UserRanks assignment""",
+        description="""Insert a UserRank assignment""",
         permission_classes=[
             OnlyForAuthentized,
             SimpleInsertPermission[UserRankGQLModel](roles=["administrátor", "personalista"])
         ]
     )
-    async def user_ranks_insert(
+    async def user_rank_insert(
         self,
         info: strawberry.types.Info,
-        user_ranks: UserRanksInsertGQLModel,
+        user_rank: UserRankInsertGQLModel,
     ) -> typing.Union[UserRankGQLModel, InsertError[UserRankGQLModel]]:
         # Validate that startdate is before enddate if both are provided
-        if user_ranks.startdate and user_ranks.enddate:
-            if user_ranks.startdate >= user_ranks.enddate:
+        if user_rank.startdate and user_rank.enddate:
+            if user_rank.startdate >= user_rank.enddate:
                 return InsertError[UserRankGQLModel](
                     msg="Start date must be before end date",
                     code="d5e8f9a2-4b3c-4d5e-9f8a-1b2c3d4e5f6a",
-                    location="user_ranks_insert"
+                    location="user_rank_insert"
                 )
         
-        return await Insert[UserRankGQLModel].DoItSafeWay(info=info, entity=user_ranks)
+        return await Insert[UserRankGQLModel].DoItSafeWay(info=info, entity=user_rank)
     
 
     @strawberry.mutation(
-        description="""Update the UserRanks assignment""",
+        description="""Update the UserRank assignment""",
         permission_classes=[
             OnlyForAuthentized,
             SimpleUpdatePermission[UserRankGQLModel](roles=["administrátor", "personalista"])
@@ -267,38 +267,38 @@ class UserRanksMutation:
             LoadDataExtension[UpdateError, UserRankGQLModel]()
         ],
     )
-    async def user_ranks_update(
+    async def user_rank_update(
         self,
         info: strawberry.types.Info,
-        user_ranks: UserRanksUpdateGQLModel,
+        user_rank: UserRankUpdateGQLModel,
         db_row: typing.Any,
     ) -> typing.Union[UserRankGQLModel, UpdateError[UserRankGQLModel]]:
         # Validate dates if both are being updated
-        startdate = user_ranks.startdate if user_ranks.startdate is not None else db_row.startdate
-        enddate = user_ranks.enddate if user_ranks.enddate is not None else db_row.enddate
+        startdate = user_rank.startdate if user_rank.startdate is not None else db_row.startdate
+        enddate = user_rank.enddate if user_rank.enddate is not None else db_row.enddate
         
         if startdate and enddate and startdate >= enddate:
             return UpdateError[UserRankGQLModel](
                 _entity=db_row,
                 msg="Start date must be before end date",
                 code="e6f9a3b4-5c4d-5e6f-af9b-2c3d4e5f6a7b",
-                location="user_ranks_update",
-                _input=user_ranks
+                location="user_rank_update",
+                _input=user_rank
             )
         
-        return await Update[UserRankGQLModel].DoItSafeWay(info=info, entity=user_ranks)
+        return await Update[UserRankGQLModel].DoItSafeWay(info=info, entity=user_rank)
 
 
     @strawberry.mutation(
-        description="""Delete a UserRanks assignment""",
+        description="""Delete a UserRank assignment""",
         permission_classes=[
             OnlyForAuthentized,
             SimpleDeletePermission[UserRankGQLModel](roles=["administrátor", "personalista"])
         ]
     )
-    async def user_ranks_delete(
+    async def user_rank_delete(
         self,
         info: strawberry.types.Info,
-        user_ranks: UserRanksDeleteGQLModel
+        user_rank: UserRankDeleteGQLModel
     ) -> typing.Optional[DeleteError[UserRankGQLModel]]:
-        return await Delete[UserRankGQLModel].DoItSafeWay(info=info, entity=user_ranks)
+        return await Delete[UserRankGQLModel].DoItSafeWay(info=info, entity=user_rank)
