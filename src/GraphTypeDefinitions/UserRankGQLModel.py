@@ -36,12 +36,12 @@ from uoishelpers.gqlpermissions.UserAbsoluteAccessControlExtension import UserAb
 from .BaseGQLModel import BaseGQLModel, IDType
 
 
-RankGQLModel = typing.Annotated["RankGQLModel", strawberry.lazy(".RanksGQLModel")]
-RankInputFilter = typing.Annotated["RankInputFilter", strawberry.lazy(".RanksGQLModel")]
+RankGQLModel = typing.Annotated["RankGQLModel", strawberry.lazy(".RankGQLModel")]
+RankInputFilter = typing.Annotated["RankInputFilter", strawberry.lazy(".RankGQLModel")]
 UserGQLModel = typing.Annotated["UserGQLModel", strawberry.lazy(".UserGQLModel")]
 
 @createInputs2
-class UserRanksInputFilter:
+class UserRankInputFilter:
     id: IDType
     rank_id: IDType
     user_id: IDType
@@ -136,7 +136,7 @@ class UserRankGQLModel(BaseGQLModel):
     )
 
 @strawberry.type(description="Query operations for UserRanks")
-class UserRanksQuery:
+class UserRankQuery:
 
     user_ranks_by_id: typing.Optional[UserRankGQLModel] = strawberry.field(
         description="User rank assignment by its id",
@@ -151,7 +151,7 @@ class UserRanksQuery:
         permission_classes=[
             OnlyForAuthentized
         ],
-        resolver=PageResolver[UserRankGQLModel](whereType=UserRanksInputFilter)
+        resolver=PageResolver[UserRankGQLModel](whereType=UserRankInputFilter)
     )
 
 

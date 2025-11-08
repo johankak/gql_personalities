@@ -10,8 +10,8 @@ from uoishelpers.resolvers import (
     VectorResolver
 )
 from .EventInvitationGQLModel import EventInvitationGQLModel, EventInvitationInputFilter
-from .RanksGQLModel import RankGQLModel
-from .UserRanksGQLModel import UserRankGQLModel, UserRanksInputFilter
+from .RankGQLModel import RankGQLModel
+from .UserRankGQLModel import UserRankGQLModel, UserRankInputFilter
 
 @strawberry.federation.type(extend=True, keys=["id"])
 class UserGQLModel:
@@ -52,6 +52,6 @@ class UserGQLModel:
             OnlyForAuthentized
         ],
         
-        resolver=VectorResolver[UserRankGQLModel](fkey_field_name="user_id", whereType=UserRanksInputFilter)
+        resolver=VectorResolver[UserRankGQLModel](fkey_field_name="user_id", whereType=UserRankInputFilter)
     )
     # async def event_invitations(self, info:strawberry.types.Info)

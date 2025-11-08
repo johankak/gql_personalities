@@ -26,7 +26,7 @@ class LoaderMap(LoaderMapBase[BaseModel]):
     EventInvitationModel: IDLoader[src.DBDefinitions.EventInvitationModel] = None
     RankModel: IDLoader[src.DBDefinitions.RankModel] = None
     CertificateTypeModel: IDLoader[src.DBDefinitions.CertificateTypeModel] = None
-    UserRanksModel: IDLoader[src.DBDefinitions.UserRankModel] = None
+    UserRankModel: IDLoader[src.DBDefinitions.UserRankModel] = None
     CertificateCategoryModel: IDLoader[src.DBDefinitions.CertificateCategoryModel] = None
 
 
@@ -37,7 +37,7 @@ class LoaderMap(LoaderMapBase[BaseModel]):
         self.EventInvitationModel = self.get(EventInvitationModel)
         self.RankModel = self.get(RankModel)
         self.CertificateTypeModel = self.get(CertificateTypeModel)
-        self.UserRanksModel = self.get(UserRankModel)
+        self.UserRankModel = self.get(UserRankModel)
         self.CertificateCategoryModel = self.get(CertificateCategoryModel)
 
 

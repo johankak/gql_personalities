@@ -2,16 +2,16 @@ import strawberry
 
 from .EventGQLModel import EventQuery
 from .EventInvitationGQLModel import EventInvitationQuery
-from .RanksGQLModel import RankGQLModel
+from .RankGQLModel import RankGQLModel
 from .UserGQLModel import UserGQLModel
-from .UserRanksGQLModel import UserRankGQLModel, UserRanksQuery
-from .RanksGQLModel import RankQuery
+from .UserRankGQLModel import UserRankGQLModel, UserRankQuery
+from .RankGQLModel import RankQuery
 from .CertificateTypeGQLModel import CertificateTypeQuery
 from .CertificateCategoryGQLModel import CertificateCategoryQuery
 
 
 @strawberry.type(description="""Type for query root""")
-class Query(EventQuery, EventInvitationQuery, RankQuery, CertificateTypeQuery, UserRanksQuery, CertificateCategoryQuery):
+class Query(EventQuery, EventInvitationQuery, RankQuery, CertificateTypeQuery, UserRankQuery, CertificateCategoryQuery):
     @strawberry.field(
         description="""Returns hello world"""
         )
