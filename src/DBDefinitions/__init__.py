@@ -13,6 +13,7 @@ from .UserRankModel import UserRankModel
 from .RankModel import RankModel
 from .CertificateTypeModel import CertificateTypeModel
 from .CertificateCategoryModel import CertificateCategoryModel
+from .WorkHistoryPositionModel import WorkHistoryPositionModel
 
 
 async def startEngine(connectionstring, makeDrop=False, makeUp=True):

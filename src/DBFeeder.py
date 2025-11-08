@@ -10,7 +10,8 @@ from src.DBDefinitions import (
     UserRankModel,
     RankModel,
     CertificateTypeModel,
-    CertificateCategoryModel
+    CertificateCategoryModel,
+    WorkHistoryPositionModel
 
 )
 
@@ -29,7 +30,8 @@ async def initDB(asyncSessionMaker, filename="./systemdata.json"):
             RankModel,
             UserRankModel,
             CertificateTypeModel,
-            CertificateCategoryModel
+            CertificateCategoryModel,
+            WorkHistoryPositionModel
         ]
         
 
@@ -50,7 +52,8 @@ async def backupDB(asyncSessionMaker, filename="./systemdata.backup.json"):
         UserRankModel,
         RankModel,
         CertificateTypeModel,
-        CertificateCategoryModel
+        CertificateCategoryModel,
+        WorkHistoryPositionModel
     ]
     data = []
     async with asyncSessionMaker() as session:

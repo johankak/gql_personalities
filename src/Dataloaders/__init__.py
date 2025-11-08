@@ -8,7 +8,8 @@ from src.DBDefinitions import (
     UserRankModel,
     RankModel,
     CertificateTypeModel,
-    CertificateCategoryModel
+    CertificateCategoryModel,
+    WorkHistoryPositionModel
 
 )
 
@@ -28,6 +29,7 @@ class LoaderMap(LoaderMapBase[BaseModel]):
     CertificateTypeModel: IDLoader[src.DBDefinitions.CertificateTypeModel] = None
     UserRankModel: IDLoader[src.DBDefinitions.UserRankModel] = None
     CertificateCategoryModel: IDLoader[src.DBDefinitions.CertificateCategoryModel] = None
+    WorkHistoryPositionModel: IDLoader[src.DBDefinitions.WorkHistoryPositionModel] = None
 
 
     def __init__(self, session):
@@ -39,6 +41,7 @@ class LoaderMap(LoaderMapBase[BaseModel]):
         self.CertificateTypeModel = self.get(CertificateTypeModel)
         self.UserRankModel = self.get(UserRankModel)
         self.CertificateCategoryModel = self.get(CertificateCategoryModel)
+        self.WorkHistoryPositionModel = self.get(WorkHistoryPositionModel)
 
 
         # print(f"LoaderMap created with session: {session}")
