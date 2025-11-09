@@ -46,7 +46,7 @@ class UserGQLModel:
     #     rank_instances = ranks.scalars().all()
     #     return [RankGQLModel.from_instance(rank) for rank in rank_instances]
     
-    ranks: typing.List[UserRankGQLModel] = strawberry.field(
+    rank: typing.List[UserRankGQLModel] = strawberry.field(
         description="Links to events where the user has been invited",
         permission_classes=[
             OnlyForAuthentized
