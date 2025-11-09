@@ -16,6 +16,7 @@ from .CertificateCategoryModel import CertificateCategoryModel
 from .WorkHistoryPositionModel import WorkHistoryPositionModel
 from .StudyPlaceModel import StudyPlaceModel
 from .MedalCategoryModel import MedalCategoryModel
+from .MedalTypeModel import MedalTypeModel
 
 async def startEngine(connectionstring, makeDrop=False, makeUp=True):
     """Provede nezbytne ukony a vrati asynchronni SessionMaker"""
