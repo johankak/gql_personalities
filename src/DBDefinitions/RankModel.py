@@ -25,7 +25,11 @@ class RankModel(BaseModel):
     __tablename__ = "ranks"
 
     # Materialized path technique
-    
+    parent_attribute_name = "rank"
+    path_attribute_name = "path"
+    children_attribute_name = "children"
+    parent_id_attribute_name = "parent_id"
+
     name: Mapped[str] = mapped_column(default=None, nullable=True)
 
     
