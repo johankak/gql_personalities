@@ -61,9 +61,6 @@ class MedalTypeGQLModel(BaseGQLModel):
         permission_classes=[OnlyForAuthentized]
     )
 
-    
-    
-
 
 @strawberry.interface(
     description="""MedalType queries"""

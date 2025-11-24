@@ -25,7 +25,7 @@ class MedalTypeModel(BaseModel):
     __tablename__ = "medaltypes"
 
     # Materialized path technique
-    
+
     name: Mapped[str] = mapped_column(default=None, nullable=True)
 
     
