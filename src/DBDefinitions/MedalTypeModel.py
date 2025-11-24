@@ -25,11 +25,9 @@ class MedalTypeModel(BaseModel):
     __tablename__ = "medaltypes"
 
     # Materialized path technique
-    parent_attribute_name = "parent"
-    path_attribute_name = "path"
-    children_attribute_name = "children"
-    parent_id_attribute_name = "parent_id"
+    parent_attribute_name = "medaltype_parent"
+    path_attribute_name = "medaltype_path"
+    children_attribute_name = "medaltype_children"
+    parent_id_attribute_name = "medaltype_parent_id"
 
     name: Mapped[str] = mapped_column(default=None, nullable=True)
-
-    
