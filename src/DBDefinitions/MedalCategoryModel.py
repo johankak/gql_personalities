@@ -26,7 +26,7 @@ class MedalCategoryModel(BaseModel):
 
     # Materialized path technique
     
-    parent_attribute_name = "rank"
+    parent_attribute_name = "parent"
     path_attribute_name = "path"
     children_attribute_name = "children"
     parent_id_attribute_name = "parent_id"

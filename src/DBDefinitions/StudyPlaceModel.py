@@ -25,6 +25,10 @@ class StudyPlaceModel(BaseModel):
     __tablename__ = "studyplaces"
 
     # Materialized path technique
+    parent_attribute_name = "parent"
+    path_attribute_name = "path"
+    children_attribute_name = "children"
+    parent_id_attribute_name = "parent_id"
     
     name: Mapped[str] = mapped_column(default=None, nullable=True)
 
