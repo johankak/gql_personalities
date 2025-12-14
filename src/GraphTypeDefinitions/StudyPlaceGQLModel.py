@@ -147,9 +147,9 @@ class StudyPlaceMutation:
     @strawberry.mutation(
         description="""Insert a StudyPlace""",
         extensions=[
-            UserAccessControlExtension[InsertError[StudyPlaceGQLModel], StudyPlaceGQLModel](roles=["administrátor"]),
-            UserRoleProviderExtension[InsertError[StudyPlaceGQLModel], StudyPlaceGQLModel](),
-            RbacInsertProviderExtension[InsertError[StudyPlaceGQLModel], StudyPlaceGQLModel](rbac_key_name="parent_id")
+            UserAccessControlExtension[InsertError, StudyPlaceGQLModel](roles=["administrátor"]),
+            UserRoleProviderExtension[InsertError, StudyPlaceGQLModel](),
+            RbacInsertProviderExtension[InsertError, StudyPlaceGQLModel](rbac_key_name="parent_id")
         ]
     )
     async def StudyPlace_insert(
@@ -163,10 +163,10 @@ class StudyPlaceMutation:
     @strawberry.mutation(
         description="""Update a StudyPlace""",
         extensions=[
-            UserAccessControlExtension[UpdateError[StudyPlaceGQLModel], StudyPlaceGQLModel](roles=["administrátor"]),
-            UserRoleProviderExtension[UpdateError[StudyPlaceGQLModel], StudyPlaceGQLModel](),
-            RbacProviderExtension[UpdateError[StudyPlaceGQLModel], StudyPlaceGQLModel](),
-            LoadDataExtension[UpdateError[StudyPlaceGQLModel], StudyPlaceGQLModel](primary_key_name="id", getLoader=StudyPlaceGQLModel.getLoader)
+            UserAccessControlExtension[UpdateError, StudyPlaceGQLModel](roles=["administrátor"]),
+            UserRoleProviderExtension[UpdateError, StudyPlaceGQLModel](),
+            RbacProviderExtension[UpdateError, StudyPlaceGQLModel](),
+            LoadDataExtension[UpdateError, StudyPlaceGQLModel](primary_key_name="id", getLoader=StudyPlaceGQLModel.getLoader)
         ]
     )
     async def StudyPlace_update(
@@ -180,10 +180,10 @@ class StudyPlaceMutation:
     @strawberry.mutation(
         description="""Delete a StudyPlace""",
         extensions=[
-            UserAccessControlExtension[DeleteError[StudyPlaceGQLModel], StudyPlaceGQLModel](roles=["administrátor"]),
-            UserRoleProviderExtension[DeleteError[StudyPlaceGQLModel], StudyPlaceGQLModel](),
-            RbacProviderExtension[DeleteError[StudyPlaceGQLModel], StudyPlaceGQLModel](),
-            LoadDataExtension[DeleteError[StudyPlaceGQLModel], StudyPlaceGQLModel](primary_key_name="id", getLoader=StudyPlaceGQLModel.getLoader)
+            UserAccessControlExtension[DeleteError, StudyPlaceGQLModel](roles=["administrátor"]),
+            UserRoleProviderExtension[DeleteError, StudyPlaceGQLModel](),
+            RbacProviderExtension[DeleteError, StudyPlaceGQLModel](),
+            LoadDataExtension[DeleteError, StudyPlaceGQLModel](primary_key_name="id", getLoader=StudyPlaceGQLModel.getLoader)
         ]
     )   
     async def StudyPlace_delete(
