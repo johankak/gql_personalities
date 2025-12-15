@@ -31,5 +31,4 @@ class StudyPlaceModel(BaseModel):
     parent_id_attribute_name = "parent_id"
     
     name: Mapped[str] = mapped_column(default=None, nullable=True)
-
     
