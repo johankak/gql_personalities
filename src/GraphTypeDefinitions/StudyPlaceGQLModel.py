@@ -183,7 +183,7 @@ class StudyPlaceMutation:
             UserAccessControlExtension[DeleteError, StudyPlaceGQLModel](roles=["administrátor"]),
             UserRoleProviderExtension[DeleteError, StudyPlaceGQLModel](),
             RbacProviderExtension[DeleteError, StudyPlaceGQLModel](),
-            LoadDataExtension[DeleteError, StudyPlaceGQLModel](primary_key_name="id", getLoader=StudyPlaceGQLModel.getLoader)
+            LoadDataExtension[DeleteError, StudyPlaceGQLModel]()
         ]
     )   
     async def StudyPlace_delete(

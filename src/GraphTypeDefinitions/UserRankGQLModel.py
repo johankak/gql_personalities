@@ -264,6 +264,9 @@ class UserRankMutation:
             SimpleUpdatePermission[UserRankGQLModel](roles=["administrátor", "personalista"])
         ],
         extensions=[
+            UserAccessControlExtension[UpdateError, UserRankGQLModel](roles=["administrátor"]),
+            UserRoleProviderExtension[UpdateError, UserRankGQLModel](),
+            RbacProviderExtension[UpdateError, UserRankGQLModel](),
             LoadDataExtension[UpdateError, UserRankGQLModel]()
         ],
     )
@@ -272,6 +275,8 @@ class UserRankMutation:
         info: strawberry.types.Info,
         user_rank: UserRankUpdateGQLModel,
         db_row: typing.Any,
+        user_roles: typing.List[str],
+        rbacobject_id: typing.Optional[IDType] = None
     ) -> typing.Union[UserRankGQLModel, UpdateError[UserRankGQLModel]]:
         # Validate dates if both are being updated
         startdate = user_rank.startdate if user_rank.startdate is not None else db_row.startdate

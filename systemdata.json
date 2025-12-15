@@ -10449,7 +10449,8 @@
         {
             "id": "79a542d3-9a17-4966-913f-3fcc34954121",
             "user_id": "51d101a0-81f1-44ca-8366-6cf51432e8d6",
-            "rank_id": "9234d06c-e811-4016-8ee5-f6975b4048a4"
+            "rank_id": "9234d06c-e811-4016-8ee5-f6975b4048a4",
+            "rbacobject_id": "51d101a0-81f1-44ca-8366-6cf51432e8d6"
         }
     ],
     "personalitiescertificatetypes": [
