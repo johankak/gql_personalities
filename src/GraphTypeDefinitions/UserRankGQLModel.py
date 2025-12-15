@@ -238,12 +238,19 @@ class UserRankMutation:
         permission_classes=[
             OnlyForAuthentized,
             SimpleInsertPermission[UserRankGQLModel](roles=["administrátor", "personalista"])
+        ],
+        extensions=[
+            UserAccessControlExtension[InsertError, UserRankGQLModel](roles=["administrátor", "personalista"]),
+            UserRoleProviderExtension[InsertError, UserRankGQLModel](),
+            RbacInsertProviderExtension[InsertError, UserRankGQLModel](rbac_key_name="user_id")
         ]
     )
     async def user_rank_insert(
         self,
         info: strawberry.types.Info,
         user_rank: UserRankInsertGQLModel,
+        user_roles: typing.List[str],
+        rbacobject_id: typing.Optional[IDType] = None
     ) -> typing.Union[UserRankGQLModel, InsertError[UserRankGQLModel]]:
         # Validate that startdate is before enddate if both are provided
         if user_rank.startdate and user_rank.enddate:
@@ -299,11 +306,20 @@ class UserRankMutation:
         permission_classes=[
             OnlyForAuthentized,
             SimpleDeletePermission[UserRankGQLModel](roles=["administrátor", "personalista"])
+        ],
+        extensions=[
+            UserAccessControlExtension[DeleteError, UserRankGQLModel](roles=["administrátor", "personalista"]),
+            UserRoleProviderExtension[DeleteError, UserRankGQLModel](),
+            RbacProviderExtension[DeleteError, UserRankGQLModel](),
+            LoadDataExtension[DeleteError, UserRankGQLModel]()
         ]
     )
     async def user_rank_delete(
         self,
         info: strawberry.types.Info,
-        user_rank: UserRankDeleteGQLModel
+        user_rank: UserRankDeleteGQLModel,
+        db_row: typing.Any,
+        user_roles: typing.List[str],
+        rbacobject_id: typing.Optional[IDType] = None
     ) -> typing.Optional[DeleteError[UserRankGQLModel]]:
         return await Delete[UserRankGQLModel].DoItSafeWay(info=info, entity=user_rank)
