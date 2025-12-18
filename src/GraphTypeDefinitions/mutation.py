@@ -11,9 +11,11 @@ from .CertificateTypeGQLModel import CertificateTypeMutation
 from .WorkHistoryPositionGQLModel import WorkHistoryPositionMutation
 from .StudyPlaceGQLModel import StudyPlaceMutation
 from .UserRankGQLModel import UserRankMutation
+from .UserStudyPlaceGQLModel import UserStudyPlaceMutation
 
 @strawberry.type(description="""Type for mutation root""")
-class Mutation(EventMutation, EventInvitationMutation, MedalTypeMutation, RankMutation, CertificateCategoryMutation,
-               CertificateTypeMutation, MedalCategoryMutation, WorkHistoryPositionMutation, StudyPlaceMutation, UserRankMutation):
+class Mutation(EventMutation, EventInvitationMutation, MedalTypeMutation, RankMutation, 
+               CertificateCategoryMutation, CertificateTypeMutation, MedalCategoryMutation, 
+               WorkHistoryPositionMutation, StudyPlaceMutation, UserRankMutation, UserStudyPlaceMutation):
     pass
 
