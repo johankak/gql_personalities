@@ -12,7 +12,8 @@ from src.DBDefinitions import (
     WorkHistoryPositionModel,
     StudyPlaceModel,
     MedalCategoryModel,
-    MedalTypeModel
+    MedalTypeModel,
+    UserStudyPlaceModel
 
 )
 
@@ -36,6 +37,7 @@ class LoaderMap(LoaderMapBase[BaseModel]):
     StudyPlaceModel: IDLoader[src.DBDefinitions.StudyPlaceModel] = None 
     MedalCategoryModel: IDLoader[src.DBDefinitions.MedalCategoryModel] = None
     MedalTypeModel: IDLoader[src.DBDefinitions.MedalTypeModel] = None
+    UserStudyPlaceModel: IDLoader[src.DBDefinitions.UserStudyPlaceModel] = None
 
     def __init__(self, session):
         super().__init__(session)
@@ -50,6 +52,7 @@ class LoaderMap(LoaderMapBase[BaseModel]):
         self.StudyPlaceModel = self.get(StudyPlaceModel)
         self.MedalCategoryModel = self.get(MedalCategoryModel)
         self.MedalTypeModel = self.get(MedalTypeModel)
+        self.UserStudyPlaceModel = self.get(UserStudyPlaceModel)
         # print(f"LoaderMap created with session: {session}")
 
 def createLoadersContext(session):
