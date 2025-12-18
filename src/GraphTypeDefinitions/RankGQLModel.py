@@ -152,44 +152,47 @@ class RankDeleteGQLModel:
 class RankMutation:
     @strawberry.mutation(
         description="""Insert a Rank""",
-        permission_classes=[
-            OnlyForAuthentized,
-            SimpleInsertPermission[RankGQLModel](roles=["administrátor"])
+        permission_classes=[OnlyForAuthentized],
+        extensions=[
+            UserAbsoluteAccessControlExtension(roles=["administrátor"])
         ]
     )
     async def rank_insert(
         self,
         info: strawberry.Info,
         rank: RankInsertGQLModel,
+        user_roles: typing.List[typing.Any] = None
     ) -> typing.Union[RankGQLModel, InsertError[RankGQLModel]]:
         return await Insert[RankGQLModel].DoItSafeWay(info=info, entity=rank)
     
 
     @strawberry.mutation(
         description="""Update a Rank""",
-        permission_classes=[
-            OnlyForAuthentized,
-            SimpleUpdatePermission[RankGQLModel](roles=["administrátor"])
+        permission_classes=[OnlyForAuthentized],
+        extensions=[
+            UserAbsoluteAccessControlExtension(roles=["administrátor"])
         ]
     )
     async def rank_update(
         self,
         info: strawberry.Info,
-        rank: RankUpdateGQLModel
+        rank: RankUpdateGQLModel,
+        user_roles: typing.List[typing.Any] = None
     ) -> typing.Union[RankGQLModel, UpdateError[RankGQLModel]]:
         return await Update[RankGQLModel].DoItSafeWay(info=info, entity=rank)
     
 
     @strawberry.mutation(
         description="""Delete a Rank""",
-        permission_classes=[
-            OnlyForAuthentized,
-            SimpleDeletePermission[RankGQLModel](roles=["administrátor"])
+        permission_classes=[OnlyForAuthentized],
+        extensions=[
+            UserAbsoluteAccessControlExtension(roles=["administrátor"])
         ]
     )   
     async def rank_delete(
         self,
         info: strawberry.Info,
-        rank: RankDeleteGQLModel
+        rank: RankDeleteGQLModel,
+        user_roles: typing.List[typing.Any] = None
     ) -> typing.Optional[DeleteError[RankGQLModel]]:
         return await Delete[RankGQLModel].DoItSafeWay(info=info, entity=rank)
