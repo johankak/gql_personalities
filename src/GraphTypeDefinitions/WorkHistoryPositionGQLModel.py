@@ -152,44 +152,47 @@ class WorkHistoryPositionDeleteGQLModel:
 class WorkHistoryPositionMutation:
     @strawberry.mutation(
         description="""Insert a WorkHistoryPosition""",
-        permission_classes=[
-            OnlyForAuthentized,
-            SimpleInsertPermission[WorkHistoryPositionGQLModel](roles=["administrátor"])
+        permission_classes=[OnlyForAuthentized],
+        extensions=[
+            UserAbsoluteAccessControlExtension(roles=["administrátor"])
         ]
     )
     async def WorkHistoryPosition_insert(
         self,
         info: strawberry.Info,
         WorkHistoryPosition: WorkHistoryPositionInsertGQLModel,
+        user_roles: typing.List[typing.Any] = None
     ) -> typing.Union[WorkHistoryPositionGQLModel, InsertError[WorkHistoryPositionGQLModel]]:
         return await Insert[WorkHistoryPositionGQLModel].DoItSafeWay(info=info, entity=WorkHistoryPosition)
     
 
     @strawberry.mutation(
         description="""Update a WorkHistoryPosition""",
-        permission_classes=[
-            OnlyForAuthentized,
-            SimpleUpdatePermission[WorkHistoryPositionGQLModel](roles=["administrátor"])
+        permission_classes=[OnlyForAuthentized],
+        extensions=[
+            UserAbsoluteAccessControlExtension(roles=["administrátor"])
         ]
     )
     async def WorkHistoryPosition_update(
         self,
         info: strawberry.Info,
-        WorkHistoryPosition: WorkHistoryPositionUpdateGQLModel
+        WorkHistoryPosition: WorkHistoryPositionUpdateGQLModel,
+        user_roles: typing.List[typing.Any] = None
     ) -> typing.Union[WorkHistoryPositionGQLModel, UpdateError[WorkHistoryPositionGQLModel]]:
         return await Update[WorkHistoryPositionGQLModel].DoItSafeWay(info=info, entity=WorkHistoryPosition)
     
 
     @strawberry.mutation(
         description="""Delete a WorkHistoryPosition""",
-        permission_classes=[
-            OnlyForAuthentized,
-            SimpleDeletePermission[WorkHistoryPositionGQLModel](roles=["administrátor"])
+        permission_classes=[OnlyForAuthentized],
+        extensions=[
+            UserAbsoluteAccessControlExtension(roles=["administrátor"])
         ]
     )   
     async def WorkHistoryPosition_delete(
         self,
         info: strawberry.Info,
-        WorkHistoryPosition: WorkHistoryPositionDeleteGQLModel
+        WorkHistoryPosition: WorkHistoryPositionDeleteGQLModel,
+        user_roles: typing.List[typing.Any] = None
     ) -> typing.Optional[DeleteError[WorkHistoryPositionGQLModel]]:
         return await Delete[WorkHistoryPositionGQLModel].DoItSafeWay(info=info, entity=WorkHistoryPosition)

@@ -146,49 +146,47 @@ class StudyPlaceDeleteGQLModel:
 class StudyPlaceMutation:
     @strawberry.mutation(
         description="""Insert a StudyPlace""",
+        permission_classes=[OnlyForAuthentized],
         extensions=[
-            UserAccessControlExtension[InsertError, StudyPlaceGQLModel](roles=["administrátor"]),
-            UserRoleProviderExtension[InsertError, StudyPlaceGQLModel](),
-            RbacInsertProviderExtension[InsertError, StudyPlaceGQLModel](rbac_key_name="parent_id")
+            UserAbsoluteAccessControlExtension(roles=["administrátor"])
         ]
     )
     async def StudyPlace_insert(
         self,
         info: strawberry.Info,
         StudyPlace: StudyPlaceInsertGQLModel,
+        user_roles: typing.List[typing.Any] = None
     ) -> typing.Union[StudyPlaceGQLModel, InsertError[StudyPlaceGQLModel]]:
         return await Insert[StudyPlaceGQLModel].DoItSafeWay(info=info, entity=StudyPlace)
     
 
     @strawberry.mutation(
         description="""Update a StudyPlace""",
+        permission_classes=[OnlyForAuthentized],
         extensions=[
-            UserAccessControlExtension[UpdateError, StudyPlaceGQLModel](roles=["administrátor"]),
-            UserRoleProviderExtension[UpdateError, StudyPlaceGQLModel](),
-            RbacProviderExtension[UpdateError, StudyPlaceGQLModel](),
-            LoadDataExtension[UpdateError, StudyPlaceGQLModel](primary_key_name="id", getLoader=StudyPlaceGQLModel.getLoader)
+            UserAbsoluteAccessControlExtension(roles=["administrátor"])
         ]
     )
     async def StudyPlace_update(
         self,
         info: strawberry.Info,
-        StudyPlace: StudyPlaceUpdateGQLModel
+        StudyPlace: StudyPlaceUpdateGQLModel,
+        user_roles: typing.List[typing.Any] = None
     ) -> typing.Union[StudyPlaceGQLModel, UpdateError[StudyPlaceGQLModel]]:
         return await Update[StudyPlaceGQLModel].DoItSafeWay(info=info, entity=StudyPlace)
     
 
     @strawberry.mutation(
         description="""Delete a StudyPlace""",
+        permission_classes=[OnlyForAuthentized],
         extensions=[
-            UserAccessControlExtension[DeleteError, StudyPlaceGQLModel](roles=["administrátor"]),
-            UserRoleProviderExtension[DeleteError, StudyPlaceGQLModel](),
-            RbacProviderExtension[DeleteError, StudyPlaceGQLModel](),
-            LoadDataExtension[DeleteError, StudyPlaceGQLModel]()
+            UserAbsoluteAccessControlExtension(roles=["administrátor"])
         ]
     )   
     async def StudyPlace_delete(
         self,
         info: strawberry.Info,
-        StudyPlace: StudyPlaceDeleteGQLModel
+        StudyPlace: StudyPlaceDeleteGQLModel,
+        user_roles: typing.List[typing.Any] = None
     ) -> typing.Optional[DeleteError[StudyPlaceGQLModel]]:
         return await Delete[StudyPlaceGQLModel].DoItSafeWay(info=info, entity=StudyPlace)
