@@ -15,8 +15,8 @@ from src.DBDefinitions import (
     StudyPlaceModel,
     MedalCategoryModel,
     MedalTypeModel,
-    UserStudyPlaceModel
-
+    UserStudyPlaceModel,
+    UserWorkHistoryPositionModel
 )
 
 get_demodata = lambda :readJsonFile(jsonFileName="./systemdata.json")
@@ -39,7 +39,8 @@ async def initDB(asyncSessionMaker, filename="./systemdata.json"):
             StudyPlaceModel,
             MedalCategoryModel,
             MedalTypeModel,
-            UserStudyPlaceModel
+            UserStudyPlaceModel,
+            UserWorkHistoryPositionModel
         ]
         
 
@@ -65,7 +66,8 @@ async def backupDB(asyncSessionMaker, filename="./systemdata.backup.json"):
         StudyPlaceModel,
         MedalCategoryModel,
         MedalTypeModel,
-        UserStudyPlaceModel
+        UserStudyPlaceModel,
+        UserWorkHistoryPositionModel
     ]
     data = []
     async with asyncSessionMaker() as session:

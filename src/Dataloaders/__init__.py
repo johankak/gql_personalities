@@ -13,8 +13,8 @@ from src.DBDefinitions import (
     StudyPlaceModel,
     MedalCategoryModel,
     MedalTypeModel,
-    UserStudyPlaceModel
-
+    UserStudyPlaceModel,
+    UserWorkHistoryPositionModel,
 )
 
 from uoishelpers.dataloaders.LoaderMapBase import LoaderMapBase
@@ -38,6 +38,7 @@ class LoaderMap(LoaderMapBase[BaseModel]):
     MedalCategoryModel: IDLoader[src.DBDefinitions.MedalCategoryModel] = None
     MedalTypeModel: IDLoader[src.DBDefinitions.MedalTypeModel] = None
     UserStudyPlaceModel: IDLoader[src.DBDefinitions.UserStudyPlaceModel] = None
+    UserWorkHistoryPositionModel: IDLoader[src.DBDefinitions.UserWorkHistoryPositionModel] = None
 
     def __init__(self, session):
         super().__init__(session)
@@ -53,6 +54,7 @@ class LoaderMap(LoaderMapBase[BaseModel]):
         self.MedalCategoryModel = self.get(MedalCategoryModel)
         self.MedalTypeModel = self.get(MedalTypeModel)
         self.UserStudyPlaceModel = self.get(UserStudyPlaceModel)
+        self.UserWorkHistoryPositionModel = self.get(UserWorkHistoryPositionModel)
         # print(f"LoaderMap created with session: {session}")
 
 def createLoadersContext(session):
