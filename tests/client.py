@@ -311,6 +311,120 @@ async def test_study_place_mutations(client):
              
     print("--- Finished: StudyPlace Mutations ---\n")
 
+async def test_rank_mutations(client):
+    """Testy pro Rank Insert, Update, Delete."""
+    print("--- Test: Rank Mutations (Insert, Update, Delete) ---")
+    
+    rank_id = str(uuid.uuid4())
+    rank_name = "New Rank Test"
+    # --- INSERT ---
+    print(f"Insert Rank id={rank_id}")
+    query_insert = """
+    mutation rankInsert($id: UUID!, $name: String!) {
+        rankInsert(rank: {id: $id, name: $name}) {
+            __typename
+            ... on RankGQLModel {
+                id
+                name
+                lastchange
+            }
+        }
+    }
+    """
+    
+    variables_insert = {"id": rank_id, "name": rank_name}
+    result_insert = await client(query_insert, variables_insert)
+    
+    if "errors" in result_insert:
+        print("Insert failed with errors.")
+        return
+
+    basic_assertions(result_insert)
+    data_insert = result_insert["data"]["rankInsert"]
+    
+    if data_insert.get("__typename") != "RankGQLModel":
+        print(f"Insert returned unexpected type: {data_insert}")
+        return
+
+    print("Insert OK")
+    lastchange = data_insert["lastchange"]
+    
+    # --- UPDATE ---
+    rank_name_updated = "Updated Rank Test"
+    print(f"Update Rank id={rank_id}")
+
+    query_update = """
+    mutation rankUpdate($id: UUID!, $lastchange: DateTime!, $name: String!) {
+        rankUpdate(rank: {id: $id, lastchange: $lastchange, name: $name}) {
+            __typename
+            ... on RankGQLModel {
+                id
+                name
+                lastchange
+            }
+        }
+    }
+    """
+    
+    variables_update = {"id": rank_id, "lastchange": lastchange, "name": rank_name_updated}
+    result_update = await client(query_update, variables_update)
+    
+    if "errors" in result_update:
+        print("Update failed with errors.")
+        return
+
+    basic_assertions(result_update)
+    data_update = result_update["data"]["rankUpdate"]
+    
+    if data_update.get("__typename") != "RankGQLModel":
+        print(f"Update returned unexpected type: {data_update}")
+        return
+
+    print("Update OK")
+    lastchange_updated = data_update["lastchange"]
+
+    # --- DELETE ---
+    print(f"Delete Rank id={rank_id}")
+    
+    # Dotaz se ptá na __typename, ale je připraven, že odpověď bude null.
+    # Použijeme inline fragmenty, kdyby se náhodou vrátil chybový objekt,
+    # ale hlavní je kontrola 'None' v Pythonu.
+    query_delete = """
+    mutation rankDelete($id: UUID!, $lastchange: DateTime!) {
+        rankDelete(rank: {id: $id, lastchange: $lastchange}) {
+            __typename
+        }
+    }
+    """
+    
+    variables_delete = {"id": rank_id, "lastchange": lastchange_updated}
+    result_delete = await client(query_delete, variables_delete)
+    
+    if "errors" in result_delete:
+        print(f"Delete failed with errors: {result_delete['errors']}")
+        return
+
+    basic_assertions(result_delete)
+    
+    # Zde je klíčová úprava:
+    data_delete = result_delete["data"]["rankDelete"]
+    
+    if data_delete is None:
+        # Server vrátil null, což podle vaší odpovědi znamená úspěch.
+        print("Delete OK (returned null)")
+    elif isinstance(data_delete, dict):
+        # Pokud vrátí objekt (např. chybu nebo model)
+        if data_delete.get("failed"):
+            print(f"Delete failed: {data_delete}")
+        else:
+            # Pokud by to vrátilo model (StudyPlaceGQLModel)
+            print(f"Delete OK (returned object: {data_delete.get('__typename')})")
+    else:
+        print(f"Delete returned unexpected value: {data_delete}")
+             
+    print("--- Finished: Rank Mutations ---\n")
+
+
 # --- Main Execution ---
 
 async def main():
@@ -324,6 +438,6 @@ async def main():
     await test_user_work_history_position_page(client)
     
     await test_study_place_mutations(client)
-    
+    await test_rank_mutations(client)
 if __name__ == "__main__":
     asyncio.run(main())
