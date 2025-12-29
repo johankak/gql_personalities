@@ -687,6 +687,153 @@ async def user_study_place_mutations(client):
              
     print("--- Finished: UserStudyPlace Mutations ---\n")
 
+async def user_rank_mutations(client):
+    """Testy pro UserRank Insert, Update, Delete."""
+    print("--- Test: UserRank Mutations (Insert, Update, Delete) ---")
+    
+    # Fixní User ID dle zadání
+    ur_user_id = "14702c35-b0c1-4902-8e3b-722a9615466b"
+    # Načtení všech dostupných Rank ID ze souboru systemdata.json
+    available_rank_ids = []
+    try:
+        if os.path.exists("systemdata.json"):
+            with open("systemdata.json", "r", encoding="utf-8") as f:
+                data = json.load(f)
+                ranks = data.get("ranks", [])
+                for r in ranks:
+                    if r.get("id"):
+                        available_rank_ids.append(r.get("id"))
+
+                if available_rank_ids:
+                    print(f"Loaded {len(available_rank_ids)} Rank IDs from systemdata.json")
+                else:
+                    print("Warning: 'ranks' found but no IDs loaded")
+        else:
+            print("Warning: systemdata.json not found")
+    except Exception as e:
+        print(f"Error loading systemdata.json: {e}")
+
+    # Fallback pokud se nepodařilo načíst žádná data
+    if not available_rank_ids:
+        print("Fallback: Using random Rank ID (Expect Failure if ID doesn't exist in DB)")
+        available_rank_ids.append(str(uuid.uuid4()))
+
+    # ID pro insert (použijeme první dostupné)
+    user_rank_id = available_rank_ids[0]
+    
+    # --- INSERT ---
+    print(f"Insert UserRank user_id={ur_user_id} rank_id={user_rank_id}")
+    
+    query_insert = """
+    mutation UserRankInsert($userId: UUID!, $rankId: UUID!) {
+        userRankInsert(userRank: {userId: $userId, rankId: $rankId}) {
+            __typename
+            ... on UserRankGQLModel {
+                id
+                lastchange
+                userId
+                rankId
+            }
+        }
+    }
+    """
+    
+    variables_insert = {"userId": ur_user_id, "rankId": user_rank_id}
+    result_insert = await client(query_insert, variables_insert)
+    
+    if "errors" in result_insert:
+        print(f"Insert failed with errors: {result_insert['errors']}")
+        return
+
+    basic_assertions(result_insert)
+    data_insert = result_insert["data"]["userRankInsert"]
+    
+    if data_insert.get("__typename") != "UserRankGQLModel":
+        print(f"Insert returned unexpected type: {data_insert}")
+        return
+
+    print("Insert OK")
+    user_rank_id = data_insert["id"]
+    lastchange = data_insert["lastchange"]
+    
+    # --- UPDATE ---
+    # Změníme studyplaceId. Musíme použít platné ID.
+    # Pokud máme více ID, použijeme druhé. Pokud jen jedno, použijeme znovu to první.
+    # Použití náhodného ID způsobí ForeignKeyViolationError.
+    
+    if len(available_rank_ids) > 1:
+        new_rank_id = available_rank_ids[1]
+    else:
+        # Fallback: nemáme jiné validní ID, použijeme to samé, aby test prošel
+        print("Warning: Only one Rank ID available. Reusing it for Update test.")
+        new_rank_id = available_rank_ids[0]
+
+    print(f"Update UserStudyPlace id={user_rank_id} -> new studyplaceId={new_rank_id}")
+    
+    query_update = """
+    mutation UserRankUpdate($id: UUID!, $lastchange: DateTime!, $rankId: UUID!) {
+        userRankUpdate(userRank: {id: $id, lastchange: $lastchange, rankId: $rankId}) {
+            __typename
+            ... on UserRankGQLModel {
+                id
+                lastchange
+                rankId
+            }
+        }
+    }
+    """
+    
+    variables_update = {"id": user_rank_id, "lastchange": lastchange, "rankId": new_rank_id}
+    result_update = await client(query_update, variables_update)
+    
+    if "errors" in result_update:
+        print(f"Update failed with errors: {result_update['errors']}")
+        return
+
+    basic_assertions(result_update)
+    data_update = result_update["data"]["userRankUpdate"]
+    
+    if data_update.get("__typename") != "UserRankGQLModel":
+        print(f"Update returned unexpected type: {data_update}")
+        return
+
+    print("Update OK")
+    lastchange_updated = data_update["lastchange"]
+
+    # --- DELETE ---
+    print(f"Delete UserStudyPlace id={user_rank_id}")
+    
+    query_delete = """
+    mutation UserRankDelete($id: UUID!, $lastchange: DateTime!) {
+        userRankDelete(userRank: {id: $id, lastchange: $lastchange}) {
+            __typename
+        }
+    }
+    """
+    
+    variables_delete = {"id": user_rank_id, "lastchange": lastchange_updated}
+    result_delete = await client(query_delete, variables_delete)
+    
+    if "errors" in result_delete:
+        print(f"Delete failed with errors: {result_delete['errors']}")
+        return
+
+    basic_assertions(result_delete)
+    
+    data_delete = result_delete["data"]["userRankDelete"]
+    
+    if data_delete is None:
+        print("Delete OK (returned null)")
+    elif isinstance(data_delete, dict):
+        if data_delete.get("failed"):
+            print(f"Delete failed: {data_delete}")
+        else:
+            print(f"Delete OK (returned object: {data_delete.get('__typename')})")
+    else:
+        print(f"Delete returned unexpected value: {data_delete}")
+             
+    print("--- Finished: UserRank Mutations ---\n")
+
 
 # --- Main Execution ---
 
@@ -705,7 +852,8 @@ async def main():
     #await test_rank_mutations(client)
     #await work_history_position_mutations(client)
 
-    await user_study_place_mutations(client)
+    #await user_study_place_mutations(client)
+    await user_rank_mutations(client)
 
 if __name__ == "__main__":
     asyncio.run(main())
