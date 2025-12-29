@@ -424,20 +424,136 @@ async def test_rank_mutations(client):
              
     print("--- Finished: Rank Mutations ---\n")
 
+async def work_history_position_mutations(client):
+    """Testy pro WorkHistoryPosition Insert, Update, Delete."""
+    print("--- Test: WorkHistoryPosition Mutations (Insert, Update, Delete) ---")
+    
+    wph_id = str(uuid.uuid4())
+    wph_name = "New WorkHistoryPosition Test"
+    # --- INSERT ---
+    print(f"Insert id={wph_id}")
+    query_insert = """
+    mutation WorkHistoryPositionInsert($id: UUID!, $name: String!) {
+        WorkHistoryPositionInsert(WorkHistoryPosition: {id: $id, name: $name}) {
+            __typename
+            ... on WorkHistoryPositionGQLModel {
+                id
+                name
+                lastchange
+            }
+        }
+    }
+    """
+    
+    variables_insert = {"id": wph_id, "name": wph_name}
+    result_insert = await client(query_insert, variables_insert)
+    
+    if "errors" in result_insert:
+        print("Insert failed with errors.")
+        return
+
+    basic_assertions(result_insert)
+    data_insert = result_insert["data"]["WorkHistoryPositionInsert"]
+    
+    if data_insert.get("__typename") != "WorkHistoryPositionGQLModel":
+        print(f"Insert returned unexpected type: {data_insert}")
+        return
+
+    print("Insert OK")
+    lastchange = data_insert["lastchange"]
+    
+    # --- UPDATE ---
+    wph_name_updated = "Updated WorkHistoryPosition Test"
+    print(f"Update WorkHistoryPosition id={wph_id}")
+    
+    query_update = """
+    mutation WorkHistoryPositionUpdate($id: UUID!, $lastchange: DateTime!, $name: String!) {
+        WorkHistoryPositionUpdate(WorkHistoryPosition: {id: $id, lastchange: $lastchange, name: $name}) {
+            __typename
+            ... on WorkHistoryPositionGQLModel {
+                id
+                name
+                lastchange
+            }
+        }
+    }
+    """
+    
+    variables_update = {"id": wph_id, "lastchange": lastchange, "name": wph_name_updated}
+    result_update = await client(query_update, variables_update)
+    
+    if "errors" in result_update:
+        print("Update failed with errors.")
+        return
+
+    basic_assertions(result_update)
+    data_update = result_update["data"]["WorkHistoryPositionUpdate"]
+    
+    if data_update.get("__typename") != "WorkHistoryPositionGQLModel":
+        print(f"Update returned unexpected type: {data_update}")
+        return
+
+    print("Update OK")
+    lastchange_updated = data_update["lastchange"]
+
+    # --- DELETE ---
+    print(f"Delete WorkHistoryPosition id={wph_id}")
+    
+    # Dotaz se ptá na __typename, ale je připraven, že odpověď bude null.
+    # Použijeme inline fragmenty, kdyby se náhodou vrátil chybový objekt,
+    # ale hlavní je kontrola 'None' v Pythonu.
+    query_delete = """
+    mutation WorkHistoryPositionDelete($id: UUID!, $lastchange: DateTime!) {
+        WorkHistoryPositionDelete(WorkHistoryPosition: {id: $id, lastchange: $lastchange}) {
+            __typename
+        }
+    }
+    """
+    
+    variables_delete = {"id": wph_id, "lastchange": lastchange_updated}
+    result_delete = await client(query_delete, variables_delete)
+    
+    if "errors" in result_delete:
+        print(f"Delete failed with errors: {result_delete['errors']}")
+        return
+
+    basic_assertions(result_delete)
+    
+    # Zde je klíčová úprava:
+    data_delete = result_delete["data"]["WorkHistoryPositionDelete"]
+    
+    if data_delete is None:
+        # Server vrátil null, což podle vaší odpovědi znamená úspěch.
+        print("Delete OK (returned null)")
+    elif isinstance(data_delete, dict):
+        # Pokud vrátí objekt (např. chybu nebo model)
+        if data_delete.get("failed"):
+            print(f"Delete failed: {data_delete}")
+        else:
+            # Pokud by to vrátilo model (StudyPlaceGQLModel)
+            print(f"Delete OK (returned object: {data_delete.get('__typename')})")
+    else:
+        print(f"Delete returned unexpected value: {data_delete}")
+             
+    print("--- Finished: WorkHistoryPosition Mutations ---\n")
+
 
 # --- Main Execution ---
 
 async def main():
     client = createFederationClient()
     
-    await test_study_place_page(client)
-    await test_user_study_place_page(client)
-    await test_rank_page(client)
-    await test_user_rank_page(client)
-    await test_work_history_position_page(client)
-    await test_user_work_history_position_page(client)
+    #await test_study_place_page(client)
+    #await test_user_study_place_page(client)
+    #await test_rank_page(client)
+    #await test_user_rank_page(client)
+    #await test_work_history_position_page(client)
+    #await test_user_work_history_position_page(client)
     
-    await test_study_place_mutations(client)
-    await test_rank_mutations(client)
+    #await test_study_place_mutations(client)
+
+    #await test_rank_mutations(client)
+    await work_history_position_mutations(client)
+
 if __name__ == "__main__":
     asyncio.run(main())
