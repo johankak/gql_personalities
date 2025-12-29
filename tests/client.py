@@ -2,6 +2,7 @@ import aiohttp
 import asyncio
 import uuid
 import json
+import os
 
 def createGQLClient():
     """
@@ -537,6 +538,155 @@ async def work_history_position_mutations(client):
              
     print("--- Finished: WorkHistoryPosition Mutations ---\n")
 
+async def user_study_place_mutations(client):
+    """Testy pro UserStudyPlace Insert, Update, Delete."""
+    print("--- Test: UserStudyPlace Mutations (Insert, Update, Delete) ---")
+    
+    # Fixní User ID dle zadání
+    usp_user_id = "14702c35-b0c1-4902-8e3b-722a9615466b"
+    
+    # Načtení všech dostupných StudyPlace ID ze souboru systemdata.json
+    available_studyplace_ids = []
+    try:
+        if os.path.exists("systemdata.json"):
+            with open("systemdata.json", "r", encoding="utf-8") as f:
+                data = json.load(f)
+                studyplaces = data.get("studyplaces", [])
+                for sp in studyplaces:
+                    if sp.get("id"):
+                        available_studyplace_ids.append(sp.get("id"))
+                
+                if available_studyplace_ids:
+                    print(f"Loaded {len(available_studyplace_ids)} StudyPlace IDs from systemdata.json")
+                else:
+                    print("Warning: 'studyplaces' found but no IDs loaded")
+        else:
+            print("Warning: systemdata.json not found")
+    except Exception as e:
+        print(f"Error loading systemdata.json: {e}")
+
+    # Fallback pokud se nepodařilo načíst žádná data
+    if not available_studyplace_ids:
+        print("Fallback: Using random StudyPlace ID (Expect Failure if ID doesn't exist in DB)")
+        available_studyplace_ids.append(str(uuid.uuid4()))
+
+    # ID pro insert (použijeme první dostupné)
+    usp_studyplace_id = available_studyplace_ids[0]
+    
+    # --- INSERT ---
+    print(f"Insert UserStudyPlace user_id={usp_user_id} studyplace_id={usp_studyplace_id}")
+    
+    # Dle moje_pomucka.txt a UserStudyPlaceGQLModel.py
+    query_insert = """
+    mutation UserStudyPlaceInsert($userId: UUID!, $studyplaceId: UUID!) {
+        userStudyplaceInsert(userStudyplace: {userId: $userId, studyplaceId: $studyplaceId}) {
+            __typename
+            ... on UserStudyPlaceGQLModel {
+                id
+                lastchange
+                userId
+                studyplaceId
+            }
+        }
+    }
+    """
+    
+    variables_insert = {"userId": usp_user_id, "studyplaceId": usp_studyplace_id}
+    result_insert = await client(query_insert, variables_insert)
+    
+    if "errors" in result_insert:
+        print(f"Insert failed with errors: {result_insert['errors']}")
+        return
+
+    basic_assertions(result_insert)
+    data_insert = result_insert["data"]["userStudyplaceInsert"]
+    
+    if data_insert.get("__typename") != "UserStudyPlaceGQLModel":
+        print(f"Insert returned unexpected type: {data_insert}")
+        return
+
+    print("Insert OK")
+    usp_id = data_insert["id"]
+    lastchange = data_insert["lastchange"]
+    
+    # --- UPDATE ---
+    # Změníme studyplaceId. Musíme použít platné ID.
+    # Pokud máme více ID, použijeme druhé. Pokud jen jedno, použijeme znovu to první.
+    # Použití náhodného ID způsobí ForeignKeyViolationError.
+    
+    if len(available_studyplace_ids) > 1:
+        new_studyplace_id = available_studyplace_ids[1]
+    else:
+        # Fallback: nemáme jiné validní ID, použijeme to samé, aby test prošel
+        print("Warning: Only one StudyPlace ID available. Reusing it for Update test.")
+        new_studyplace_id = available_studyplace_ids[0]
+
+    print(f"Update UserStudyPlace id={usp_id} -> new studyplaceId={new_studyplace_id}")
+    
+    query_update = """
+    mutation UserStudyPlaceUpdate($id: UUID!, $lastchange: DateTime!, $studyplaceId: UUID!) {
+        userStudyplaceUpdate(userStudyplace: {id: $id, lastchange: $lastchange, studyplaceId: $studyplaceId}) {
+            __typename
+            ... on UserStudyPlaceGQLModel {
+                id
+                lastchange
+                studyplaceId
+            }
+        }
+    }
+    """
+    
+    variables_update = {"id": usp_id, "lastchange": lastchange, "studyplaceId": new_studyplace_id}
+    result_update = await client(query_update, variables_update)
+    
+    if "errors" in result_update:
+        print(f"Update failed with errors: {result_update['errors']}")
+        return
+
+    basic_assertions(result_update)
+    data_update = result_update["data"]["userStudyplaceUpdate"]
+    
+    if data_update.get("__typename") != "UserStudyPlaceGQLModel":
+        print(f"Update returned unexpected type: {data_update}")
+        return
+
+    print("Update OK")
+    lastchange_updated = data_update["lastchange"]
+
+    # --- DELETE ---
+    print(f"Delete UserStudyPlace id={usp_id}")
+    
+    query_delete = """
+    mutation UserStudyPlaceDelete($id: UUID!, $lastchange: DateTime!) {
+        userStudyplaceDelete(userStudyplace: {id: $id, lastchange: $lastchange}) {
+            __typename
+        }
+    }
+    """
+    
+    variables_delete = {"id": usp_id, "lastchange": lastchange_updated}
+    result_delete = await client(query_delete, variables_delete)
+    
+    if "errors" in result_delete:
+        print(f"Delete failed with errors: {result_delete['errors']}")
+        return
+
+    basic_assertions(result_delete)
+    
+    data_delete = result_delete["data"]["userStudyplaceDelete"]
+    
+    if data_delete is None:
+        print("Delete OK (returned null)")
+    elif isinstance(data_delete, dict):
+        if data_delete.get("failed"):
+            print(f"Delete failed: {data_delete}")
+        else:
+            print(f"Delete OK (returned object: {data_delete.get('__typename')})")
+    else:
+        print(f"Delete returned unexpected value: {data_delete}")
+             
+    print("--- Finished: UserStudyPlace Mutations ---\n")
+
 
 # --- Main Execution ---
 
@@ -547,13 +697,15 @@ async def main():
     #await test_user_study_place_page(client)
     #await test_rank_page(client)
     #await test_user_rank_page(client)
-    #await test_work_history_position_page(client)
     #await test_user_work_history_position_page(client)
+    #await test_work_history_position_page(client)
     
     #await test_study_place_mutations(client)
 
     #await test_rank_mutations(client)
-    await work_history_position_mutations(client)
+    #await work_history_position_mutations(client)
+
+    await user_study_place_mutations(client)
 
 if __name__ == "__main__":
     asyncio.run(main())

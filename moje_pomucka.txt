@@ -1,0 +1,143 @@
+query UserStudyPlacePage {
+  userStudyplacePage {
+    id
+    lastchange
+    rbacobjectId
+    userId
+    studyplaceId
+  }
+}
+
+{
+  "data": {
+    "userStudyplacePage": [
+      {
+        "id": "259bf5d2-8ae4-4001-8ad8-85ab4c9b7fd2",
+        "lastchange": "2025-12-29T14:29:17.497344",
+        "rbacobjectId": "51d101a0-81f1-44ca-8366-6cf51432e8d6",
+        "userId": "14702c35-b0c1-4902-8e3b-722a9615466b",
+        "studyplaceId": "258f8f4e-a7f2-418f-bdd9-cfbbf8f38099"
+      },
+      {
+        "id": "11193795-f334-4ba7-9be6-0d6b275ce9e1",
+        "lastchange": "2025-12-29T14:29:55.103491",
+        "rbacobjectId": "51d101a0-81f1-44ca-8366-6cf51432e8d6",
+        "userId": "14702c35-b0c1-4902-8e3b-722a9615466b",
+        "studyplaceId": "258f8f4e-a7f2-418f-bdd9-cfbbf8f38099"
+      },
+      {
+        "id": "3e876074-d630-4d90-9a18-36eb6ff687b3",
+        "lastchange": "2025-12-29T15:34:12.234099",
+        "rbacobjectId": "51d101a0-81f1-44ca-8366-6cf51432e8d6",
+        "userId": "14702c35-b0c1-4902-8e3b-722a9615466b",
+        "studyplaceId": "88556487-cbf0-46ec-889a-71720b93ea37"
+      }
+    ]
+  },
+  "extensions": {
+    "ProfilingExtension": {
+      "total": {
+        "count": 1,
+        "sum": 0.010364500019932166,
+        "values": [
+          0.010364500019932166
+        ]
+      }
+    }
+  }
+}
+
+mutation UserStudyPlaceInsert {
+  userStudyplaceInsert(
+    userStudyplace: {studyplaceId: "258f8f4e-a7f2-418f-bdd9-cfbbf8f38099", userId: "14702c35-b0c1-4902-8e3b-722a9615466b"}
+  ) {
+    ... on UserStudyPlaceGQLModel {
+      id
+    }
+    ... on UserStudyPlaceGQLModelInsertError {
+      code
+      location
+    }
+  }
+}
+
+{
+  "data": {
+    "userStudyplaceInsert": {
+      "id": "3e876074-d630-4d90-9a18-36eb6ff687b3"
+    }
+  },
+  "extensions": {
+    "ProfilingExtension": {
+      "total": {
+        "count": 1,
+        "sum": 0.16052370000397786,
+        "values": [
+          0.16052370000397786
+        ]
+      }
+    }
+  }
+}
+
+mutation userStudyPlaceUpdate {
+  userStudyplaceUpdate(userStudyplace: {id: "3e876074-d630-4d90-9a18-36eb6ff687b3", lastchange: "2025-12-29T14:26:28.129190", studyplaceId: "88556487-cbf0-46ec-889a-71720b93ea37"}) {
+    ... on UserStudyPlaceGQLModel {
+      id
+    }
+    ... on UserStudyPlaceGQLModelUpdateError {
+      code
+      location
+    }
+  }
+}
+
+
+{
+  "data": {
+    "userStudyplaceUpdate": {
+      "id": "3e876074-d630-4d90-9a18-36eb6ff687b3"
+    }
+  },
+  "extensions": {
+    "ProfilingExtension": {
+      "total": {
+        "count": 1,
+        "sum": 0.11689299999852665,
+        "values": [
+          0.11689299999852665
+        ]
+      }
+    }
+  }
+}
+
+
+
+mutation UserStudyPlaceDelete {
+  userStudyplaceDelete(userStudyplace: {id: "d04b625c-3a1f-4f84-83ca-23f751327c65", lastchange: "2025-12-29T14:01:19.186470"}) {
+    code
+    location
+    input
+  }
+}
+
+
+
+
+{
+  "data": {
+    "userStudyplaceDelete": null
+  },
+  "extensions": {
+    "ProfilingExtension": {
+      "total": {
+        "count": 1,
+        "sum": 0.14137969998409972,
+        "values": [
+          0.14137969998409972
+        ]
+      }
+    }
+  }
+}
