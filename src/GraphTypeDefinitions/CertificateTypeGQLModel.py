@@ -29,23 +29,22 @@ from uoishelpers.resolvers import (
 )
 from uoishelpers.gqlpermissions.LoadDataExtension import LoadDataExtension
 from uoishelpers.gqlpermissions.RbacProviderExtension import RbacProviderExtension
-from uoishelpers.gqlpermissions.RbacInsertProviderExtension import RbacInsertProviderExtension
 from uoishelpers.gqlpermissions.UserRoleProviderExtension import UserRoleProviderExtension
-from uoishelpers.gqlpermissions.UserAccessControlExtension import UserAccessControlExtension
-from uoishelpers.gqlpermissions.UserAbsoluteAccessControlExtension import UserAbsoluteAccessControlExtension
 
 from .BaseGQLModel import BaseGQLModel, IDType, Relation
+
+# Dopředná deklarace pro rekurzivní typy
+CertificateTypeGQLModel = typing.Annotated["CertificateTypeGQLModel", strawberry.lazy(".CertificateTypeGQLModel")]
 
 @createInputs2
 class CertificateTypeInputFilter:
     name: str
     path: str
-    level: int
     id: IDType
-    parent_id: IDType
+    master_certificate_type_id: IDType # Zde je požadované pole pro filtraci
 
 @strawberry.federation.type(
-    description="""Entity representing a CertificateType""",
+    description="""Entity representing a CertificateType in a tree structure""",
     keys=["id"]
 )
 class CertificateTypeGQLModel(BaseGQLModel):
@@ -53,7 +52,11 @@ class CertificateTypeGQLModel(BaseGQLModel):
     def getLoader(cls, info: strawberry.types.Info):
         return getLoadersFromInfo(info).CertificateTypeModel
 
-    
+    path: typing.Optional[str] = strawberry.field(
+        description="""Materialized path representing the hierarchy location.""",
+        default=None,
+        permission_classes=[OnlyForAuthentized]
+    )
 
     name: typing.Optional[str] = strawberry.field(
         default=None,
@@ -61,21 +64,36 @@ class CertificateTypeGQLModel(BaseGQLModel):
         permission_classes=[OnlyForAuthentized]
     )
 
-    
-    
+    # Zde je pole, které jste chtěl vypsat
+    master_certificate_type_id: typing.Optional[IDType] = strawberry.field(
+        default=None,
+        description="""Parent type ID (master_certificate_type_id)""",
+        permission_classes=[OnlyForAuthentized]
+    )
 
+    master_certificate_type: typing.Optional["CertificateTypeGQLModel"] = strawberry.field(
+        description="""Parent certificate type""",
+        permission_classes=[OnlyForAuthentized],
+        resolver=ScalarResolver["CertificateTypeGQLModel"](fkey_field_name="master_certificate_type_id")
+    )
+
+    sub_certificate_types: typing.List["CertificateTypeGQLModel"] = strawberry.field(
+        description="""Child certificate types (sub-types)""",
+        permission_classes=[OnlyForAuthentized],
+        resolver=VectorResolver["CertificateTypeGQLModel"](fkey_field_name="master_certificate_type_id", whereType=CertificateTypeInputFilter)
+    )
 
 @strawberry.interface(
     description="""CertificateType queries"""
 )
 class CertificateTypeQuery:
-    CertificateType_by_id: typing.Optional[CertificateTypeGQLModel] = strawberry.field(
+    certificate_type_by_id: typing.Optional[CertificateTypeGQLModel] = strawberry.field(
         description="""Get a CertificateType by its id""",
         permission_classes=[OnlyForAuthentized],
         resolver=CertificateTypeGQLModel.load_with_loader
     )
 
-    CertificateType_page: typing.List[CertificateTypeGQLModel] = strawberry.field(
+    certificate_type_page: typing.List[CertificateTypeGQLModel] = strawberry.field(
         description="""Get a page of CertificateTypes""",
         permission_classes=[OnlyForAuthentized],
         resolver=PageResolver[CertificateTypeGQLModel](whereType=CertificateTypeInputFilter)
@@ -89,7 +107,7 @@ from uoishelpers.resolvers import TreeInputStructureMixin, InputModelMixin
 class CertificateTypeInsertGQLModel(TreeInputStructureMixin):
     getLoader = CertificateTypeGQLModel.getLoader
     
-    parent_id: typing.Optional[IDType] = strawberry.field(
+    master_certificate_type_id: typing.Optional[IDType] = strawberry.field(
         description="""Parent CertificateType id""",
         default=None
     )
@@ -104,7 +122,8 @@ class CertificateTypeInsertGQLModel(TreeInputStructureMixin):
         default=None
     )
     
-    children: typing.Optional[typing.List["CertificateTypeInsertGQLModel"]] = strawberry.field(
+    # Rekurzivní vkládání dětí
+    sub_certificate_types: typing.Optional[typing.List["CertificateTypeInsertGQLModel"]] = strawberry.field(
         description="Child CertificateTypes",
         default_factory=list
     )
@@ -126,7 +145,8 @@ class CertificateTypeUpdateGQLModel:
         description="""CertificateType name""",
         default=None
     )
-    parent_id: typing.Optional[IDType] = strawberry.field(
+    
+    master_certificate_type_id: typing.Optional[IDType] = strawberry.field(
         description="""Parent CertificateType id""",
         default=None
     )
@@ -151,18 +171,18 @@ class CertificateTypeDeleteGQLModel:
 )
 class CertificateTypeMutation:
     @strawberry.mutation(
-        description="""Insert a CertificateType""",
+        description="""Insert a CertificateType (supports tree structure)""",
         permission_classes=[
             OnlyForAuthentized,
             SimpleInsertPermission[CertificateTypeGQLModel](roles=["administrátor"])
         ]
     )
-    async def CertificateType_insert(
+    async def certificate_type_insert(
         self,
         info: strawberry.Info,
-        CertificateType: CertificateTypeInsertGQLModel,
+        certificate_type: CertificateTypeInsertGQLModel,
     ) -> typing.Union[CertificateTypeGQLModel, InsertError[CertificateTypeGQLModel]]:
-        return await Insert[CertificateTypeGQLModel].DoItSafeWay(info=info, entity=CertificateType)
+        return await Insert[CertificateTypeGQLModel].DoItSafeWay(info=info, entity=certificate_type)
     
 
     @strawberry.mutation(
@@ -172,12 +192,12 @@ class CertificateTypeMutation:
             SimpleUpdatePermission[CertificateTypeGQLModel](roles=["administrátor"])
         ]
     )
-    async def CertificateType_update(
+    async def certificate_type_update(
         self,
         info: strawberry.Info,
-        CertificateType: CertificateTypeUpdateGQLModel
+        certificate_type: CertificateTypeUpdateGQLModel
     ) -> typing.Union[CertificateTypeGQLModel, UpdateError[CertificateTypeGQLModel]]:
-        return await Update[CertificateTypeGQLModel].DoItSafeWay(info=info, entity=CertificateType)
+        return await Update[CertificateTypeGQLModel].DoItSafeWay(info=info, entity=certificate_type)
     
 
     @strawberry.mutation(
@@ -187,9 +207,9 @@ class CertificateTypeMutation:
             SimpleDeletePermission[CertificateTypeGQLModel](roles=["administrátor"])
         ]
     )   
-    async def CertificateType_delete(
+    async def certificate_type_delete(
         self,
         info: strawberry.Info,
-        CertificateType: CertificateTypeDeleteGQLModel
+        certificate_type: CertificateTypeDeleteGQLModel
     ) -> typing.Optional[DeleteError[CertificateTypeGQLModel]]:
-        return await Delete[CertificateTypeGQLModel].DoItSafeWay(info=info, entity=CertificateType)
+        return await Delete[CertificateTypeGQLModel].DoItSafeWay(info=info, entity=certificate_type)

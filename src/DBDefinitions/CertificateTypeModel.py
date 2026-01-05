@@ -8,29 +8,51 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
 )
-from sqlalchemy.orm import Mapped, mapped_column, synonym
-
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import relationship, column_property
+from sqlalchemy.orm import Mapped, mapped_column, synonym, relationship
 
 from .BaseModel import BaseModel, UUIDColumn, UUIDFKey, IDType
 
-###########################################################################################################################
-#
-# zde definujte sve SQLAlchemy modely
-# je-li treba, muzete definovat modely obsahujici jen id polozku, na ktere se budete odkazovat
-#
-###########################################################################################################################
 class CertificateTypeModel(BaseModel):
     __tablename__ = "personalitiescertificatetypes"
 
-    # Materialized path technique
-    
-    parent_attribute_name = "parent"
+    # Konfigurace pro stromovou strukturu (názvy atributů v tomto modelu)
     path_attribute_name = "path"
-    children_attribute_name = "children"
-    parent_id_attribute_name = "parent_id"
-    
+    parent_attribute_name = "master_certificate_type"
+    parent_id_attribute_name = "master_certificate_type_id"
+    children_attribute_name = "sub_certificate_types"
+
+    # Materialized path column
+    path: Mapped[str] = mapped_column(
+        index=True,
+        nullable=True,
+        default=None,
+        comment="Materialized path technique"
+    )
+
     name: Mapped[str] = mapped_column(default=None, nullable=True)
 
-    
+    # Cizí klíč na rodiče (přejmenováno na master_certificate_type_id)
+    master_certificate_type_id: Mapped[IDType] = mapped_column(
+        ForeignKey("personalitiescertificatetypes.id"),
+        nullable=True,
+        default=None,
+        index=True,
+    )
+
+    # Relace na rodiče
+    master_certificate_type = relationship(
+        "CertificateTypeModel",
+        viewonly=True, 
+        remote_side="CertificateTypeModel.id",
+        uselist=False,
+        back_populates="sub_certificate_types",
+    )
+
+    # Relace na děti (podtypy)
+    sub_certificate_types = relationship(
+        "CertificateTypeModel",
+        back_populates="master_certificate_type",
+        uselist=True,
+        init=True,
+        cascade="save-update"
+    )

@@ -7,7 +7,6 @@ from .UserGQLModel import UserGQLModel
 from .UserRankGQLModel import UserRankGQLModel, UserRankQuery
 from .RankGQLModel import RankQuery
 from .CertificateTypeGQLModel import CertificateTypeQuery
-from .CertificateCategoryGQLModel import CertificateCategoryQuery
 from .WorkHistoryPositionGQLModel import WorkHistoryPositionQuery
 from .StudyPlaceGQLModel import StudyPlaceQuery
 from .MedalCategoryGQLModel import MedalCategoryQuery
@@ -17,7 +16,7 @@ from .UserWorkHistoryPositionGQLModel import UserWorkHistoryPositionQuery
 
 @strawberry.type(description="""Type for query root""")
 class Query(EventQuery, EventInvitationQuery, RankQuery, CertificateTypeQuery, UserRankQuery, 
-            CertificateCategoryQuery, WorkHistoryPositionQuery, StudyPlaceQuery, 
+            WorkHistoryPositionQuery, StudyPlaceQuery, 
             MedalCategoryQuery, MedalTypeQuery, UserStudyPlaceQuery, UserWorkHistoryPositionQuery):
     @strawberry.field(
         description="""Returns hello world"""
