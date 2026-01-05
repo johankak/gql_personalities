@@ -4,22 +4,31 @@ import uuid
 import json
 import os
 
+# ==================================================================================
+# Client Setup & Helpers
+# ==================================================================================
+
 def createGQLClient():
     """
-    Vytvoří lokálního klienta s in-memory databází pro testování bez běžícího serveru.
-    Vyžaduje dostupnost main.py a DBDefinitions.
+    Vytvoří instanci FastAPI TestClient s in-memory SQLite databází.
+    
+    Slouží pro izolované integrační testy bez nutnosti spouštět externí DB server.
+    Provádí monkey-patching connection stringu v DBDefinitions.
     """
     from fastapi import FastAPI
     from fastapi.testclient import TestClient
     import DBDefinitions
 
+    # Lokální override pro připojení k in-memory SQLite (pro rychlé testy)
     def ComposeCString():
         return "sqlite+aiosqlite:///:memory:"
     
+    # Monkey-patching: Přepíšeme funkci pro tvorbu connection stringu
     DBDefinitions.ComposeConnectionString = ComposeCString
 
     import main
     
+    # Vytvoření klienta bez zachytávání serverových výjimek (chceme vidět traceback)
     client = TestClient(main.app, raise_server_exceptions=False)
     return client
 
@@ -29,15 +38,22 @@ async def getToken(
     password,
     keyurl = "http://localhost:33001/oauth/login3"
 ):
-    # print(f"--- Getting Token for {username} ---")
+    """
+    Získá JWT token z autentizační služby.
+    
+    Implementuje dvoukrokový proces přihlášení (fetch salt/key -> post credentials).
+    Vrací raw token string nebo None v případě chyby.
+    """
     try:
         async with aiohttp.ClientSession() as session:
+            # 1. Krok: Získání unikátního klíče/saltu pro přihlášení
             async with session.get(keyurl) as resp:
                 if resp.status != 200:
                     print(f"Failed to fetch login page. Status: {resp.status}")
                     return None
                 keyJson = await resp.json()
 
+            # 2. Krok: Odeslání credentials s klíčem
             payload = {"key": keyJson["key"], "username": username, "password": password}
             async with session.post(keyurl, json=payload) as resp:
                 if resp.status != 200:
@@ -59,9 +75,19 @@ def createFederationClient(
     password="john.newbie@world.com",
     gqlurl="http://localhost:8000/gql"
 ):
+    """
+    Factory funkce vracející asynchronní `post` metodu pro GraphQL dotazy.
+    
+    Zajišťuje:
+    - Lazy loading autentizačního tokenu (získá se až při prvním volání).
+    - Automatické vkládání Authorization headeru (Cookies).
+    - Základní error handling HTTP statusů.
+    """
     token = None
+    
     async def post(query, variables={}):
         nonlocal token
+        # Lazy auth: Pokud nemáme token, získáme ho před prvním requestem
         if token is None:
             token = await getToken(username, password)
             if token is None:
@@ -75,6 +101,7 @@ def createFederationClient(
 
         async with aiohttp.ClientSession() as session:
             async with session.post(gqlurl, json=payload, cookies=cookies) as resp:
+                # Pokud server vrátí chybu (5xx, 4xx), zabalíme ji do formátu GraphQL erroru
                 if resp.status != 200:
                     text = await resp.text()
                     return {"errors": [{"message": f"Server Error {resp.status}", "detail": text, "extensions": {"code": resp.status}}]}
@@ -83,32 +110,43 @@ def createFederationClient(
                     return response
     return post 
 
+# ==================================================================================
+# Assertions & Utilities
+# ==================================================================================
+
 def is_json(responsejson):
+    """Ověří, že odpověď je validní dictionary."""
     assert isinstance(responsejson, dict), f"Response is not a JSON object\nResponse: \n{responsejson}"
     return True
 
 def has_no_errors(responsejson):
+    """Ověří, že GQL odpověď neobsahuje klíč 'errors'."""
     if "errors" in responsejson:
         print(f"!!! GraphQL Errors found:\n{json.dumps(responsejson['errors'], indent=2)}")
     assert "errors" not in responsejson, f"Response contains errors"
     return True
 
 def has_data_field(responsejson):
+    """Ověří přítomnost klíče 'data'."""
     assert "data" in responsejson, "Response does not contain 'data' field"
     return True
 
 def basic_assertions(responsejson):
+    """Sdružuje základní kontroly formátu odpovědi."""
     is_json(responsejson)
     has_no_errors(responsejson)
     has_data_field(responsejson)
     return True
 
 def has_field(responsejson, fieldname):
+    """Ověří přítomnost konkrétního pole v 'data' objektu."""
     data = responsejson.get("data", {})
     assert fieldname in data, f"Response 'data' does not contain field '{fieldname}'"
     return True
 
-# --- Test Functions ---
+# ==================================================================================
+# Query Tests (Read-only operace)
+# ==================================================================================
 
 async def test_study_place_page(client):
     print("--- Test: StudyPlacePage ---")
@@ -198,8 +236,15 @@ async def test_work_history_position_page(client):
     print("--- OK: WorkHistoryPositionPage ---\n")
     return result
 
+# ==================================================================================
+# Mutation Tests (CUD operace)
+# ==================================================================================
+
 async def test_study_place_mutations(client):
-    """Testy pro StudyPlace Insert, Update, Delete."""
+    """
+    Komplexní test životního cyklu entity StudyPlace (Insert -> Update -> Delete).
+    Ověřuje správnost návratových typů (__typename) a práci s optimistickým zamykáním (lastchange).
+    """
     print("--- Test: StudyPlace Mutations (Insert, Update, Delete) ---")
     
     sp_id = str(uuid.uuid4())
@@ -230,11 +275,13 @@ async def test_study_place_mutations(client):
     basic_assertions(result_insert)
     data_insert = result_insert["data"]["StudyPlaceInsert"]
     
+    # Validace, že jsme dostali správný GQL model a ne chybu
     if data_insert.get("__typename") != "StudyPlaceGQLModel":
         print(f"Insert returned unexpected type: {data_insert}")
         return
 
     print("Insert OK")
+    # Uchováme lastchange pro optimistické zamykání při update
     lastchange = data_insert["lastchange"]
     
     # --- UPDATE ---
@@ -274,9 +321,7 @@ async def test_study_place_mutations(client):
     # --- DELETE ---
     print(f"Delete StudyPlace id={sp_id}")
     
-    # Dotaz se ptá na __typename, ale je připraven, že odpověď bude null.
-    # Použijeme inline fragmenty, kdyby se náhodou vrátil chybový objekt,
-    # ale hlavní je kontrola 'None' v Pythonu.
+    # Očekáváme __typename nebo null (pokud je smazání úspěšné a server vrací null)
     query_delete = """
     mutation StudyPlaceDelete($id: UUID!, $lastchange: DateTime!) {
         StudyPlaceDelete(StudyPlace: {id: $id, lastchange: $lastchange}) {
@@ -293,19 +338,15 @@ async def test_study_place_mutations(client):
         return
 
     basic_assertions(result_delete)
-    
-    # Zde je klíčová úprava:
     data_delete = result_delete["data"]["StudyPlaceDelete"]
     
+    # Úspěšný delete obvykle vrací None nebo objekt s informací o úspěchu
     if data_delete is None:
-        # Server vrátil null, což podle vaší odpovědi znamená úspěch.
         print("Delete OK (returned null)")
     elif isinstance(data_delete, dict):
-        # Pokud vrátí objekt (např. chybu nebo model)
         if data_delete.get("failed"):
             print(f"Delete failed: {data_delete}")
         else:
-            # Pokud by to vrátilo model (StudyPlaceGQLModel)
             print(f"Delete OK (returned object: {data_delete.get('__typename')})")
     else:
         print(f"Delete returned unexpected value: {data_delete}")
@@ -313,11 +354,12 @@ async def test_study_place_mutations(client):
     print("--- Finished: StudyPlace Mutations ---\n")
 
 async def test_rank_mutations(client):
-    """Testy pro Rank Insert, Update, Delete."""
+    """CRUD testy pro entitu Rank."""
     print("--- Test: Rank Mutations (Insert, Update, Delete) ---")
     
     rank_id = str(uuid.uuid4())
     rank_name = "New Rank Test"
+    
     # --- INSERT ---
     print(f"Insert Rank id={rank_id}")
     query_insert = """
@@ -387,9 +429,6 @@ async def test_rank_mutations(client):
     # --- DELETE ---
     print(f"Delete Rank id={rank_id}")
     
-    # Dotaz se ptá na __typename, ale je připraven, že odpověď bude null.
-    # Použijeme inline fragmenty, kdyby se náhodou vrátil chybový objekt,
-    # ale hlavní je kontrola 'None' v Pythonu.
     query_delete = """
     mutation rankDelete($id: UUID!, $lastchange: DateTime!) {
         rankDelete(rank: {id: $id, lastchange: $lastchange}) {
@@ -406,19 +445,14 @@ async def test_rank_mutations(client):
         return
 
     basic_assertions(result_delete)
-    
-    # Zde je klíčová úprava:
     data_delete = result_delete["data"]["rankDelete"]
     
     if data_delete is None:
-        # Server vrátil null, což podle vaší odpovědi znamená úspěch.
         print("Delete OK (returned null)")
     elif isinstance(data_delete, dict):
-        # Pokud vrátí objekt (např. chybu nebo model)
         if data_delete.get("failed"):
             print(f"Delete failed: {data_delete}")
         else:
-            # Pokud by to vrátilo model (StudyPlaceGQLModel)
             print(f"Delete OK (returned object: {data_delete.get('__typename')})")
     else:
         print(f"Delete returned unexpected value: {data_delete}")
@@ -426,11 +460,12 @@ async def test_rank_mutations(client):
     print("--- Finished: Rank Mutations ---\n")
 
 async def work_history_position_mutations(client):
-    """Testy pro WorkHistoryPosition Insert, Update, Delete."""
+    """CRUD testy pro entitu WorkHistoryPosition."""
     print("--- Test: WorkHistoryPosition Mutations (Insert, Update, Delete) ---")
     
     wph_id = str(uuid.uuid4())
     wph_name = "New WorkHistoryPosition Test"
+    
     # --- INSERT ---
     print(f"Insert id={wph_id}")
     query_insert = """
@@ -500,9 +535,6 @@ async def work_history_position_mutations(client):
     # --- DELETE ---
     print(f"Delete WorkHistoryPosition id={wph_id}")
     
-    # Dotaz se ptá na __typename, ale je připraven, že odpověď bude null.
-    # Použijeme inline fragmenty, kdyby se náhodou vrátil chybový objekt,
-    # ale hlavní je kontrola 'None' v Pythonu.
     query_delete = """
     mutation WorkHistoryPositionDelete($id: UUID!, $lastchange: DateTime!) {
         WorkHistoryPositionDelete(WorkHistoryPosition: {id: $id, lastchange: $lastchange}) {
@@ -519,19 +551,14 @@ async def work_history_position_mutations(client):
         return
 
     basic_assertions(result_delete)
-    
-    # Zde je klíčová úprava:
     data_delete = result_delete["data"]["WorkHistoryPositionDelete"]
     
     if data_delete is None:
-        # Server vrátil null, což podle vaší odpovědi znamená úspěch.
         print("Delete OK (returned null)")
     elif isinstance(data_delete, dict):
-        # Pokud vrátí objekt (např. chybu nebo model)
         if data_delete.get("failed"):
             print(f"Delete failed: {data_delete}")
         else:
-            # Pokud by to vrátilo model (StudyPlaceGQLModel)
             print(f"Delete OK (returned object: {data_delete.get('__typename')})")
     else:
         print(f"Delete returned unexpected value: {data_delete}")
@@ -539,13 +566,15 @@ async def work_history_position_mutations(client):
     print("--- Finished: WorkHistoryPosition Mutations ---\n")
 
 async def user_study_place_mutations(client):
-    """Testy pro UserStudyPlace Insert, Update, Delete."""
+    """
+    CRUD testy pro vazební tabulku UserStudyPlace.
+    POZOR: Vyžaduje existující ID (Foreign Keys) v `systemdata.json`.
+    """
     print("--- Test: UserStudyPlace Mutations (Insert, Update, Delete) ---")
     
-    # Fixní User ID dle zadání
     usp_user_id = "14702c35-b0c1-4902-8e3b-722a9615466b"
     
-    # Načtení všech dostupných StudyPlace ID ze souboru systemdata.json
+    # Načtení validních ID pro cizí klíče, aby test nespadl na FK constraint
     available_studyplace_ids = []
     try:
         if os.path.exists("systemdata.json"):
@@ -565,18 +594,16 @@ async def user_study_place_mutations(client):
     except Exception as e:
         print(f"Error loading systemdata.json: {e}")
 
-    # Fallback pokud se nepodařilo načíst žádná data
+    # Fallback pokud nejsou data, použijeme random (pravděpodobně failne v DB)
     if not available_studyplace_ids:
         print("Fallback: Using random StudyPlace ID (Expect Failure if ID doesn't exist in DB)")
         available_studyplace_ids.append(str(uuid.uuid4()))
 
-    # ID pro insert (použijeme první dostupné)
     usp_studyplace_id = available_studyplace_ids[0]
     
     # --- INSERT ---
     print(f"Insert UserStudyPlace user_id={usp_user_id} studyplace_id={usp_studyplace_id}")
     
-    # Dle moje_pomucka.txt a UserStudyPlaceGQLModel.py
     query_insert = """
     mutation UserStudyPlaceInsert($userId: UUID!, $studyplaceId: UUID!) {
         userStudyplaceInsert(userStudyplace: {userId: $userId, studyplaceId: $studyplaceId}) {
@@ -610,14 +637,10 @@ async def user_study_place_mutations(client):
     lastchange = data_insert["lastchange"]
     
     # --- UPDATE ---
-    # Změníme studyplaceId. Musíme použít platné ID.
-    # Pokud máme více ID, použijeme druhé. Pokud jen jedno, použijeme znovu to první.
-    # Použití náhodného ID způsobí ForeignKeyViolationError.
-    
+    # Pro update zkusíme změnit vazbu na jiné ID, pokud je k dispozici
     if len(available_studyplace_ids) > 1:
         new_studyplace_id = available_studyplace_ids[1]
     else:
-        # Fallback: nemáme jiné validní ID, použijeme to samé, aby test prošel
         print("Warning: Only one StudyPlace ID available. Reusing it for Update test.")
         new_studyplace_id = available_studyplace_ids[0]
 
@@ -672,7 +695,6 @@ async def user_study_place_mutations(client):
         return
 
     basic_assertions(result_delete)
-    
     data_delete = result_delete["data"]["userStudyplaceDelete"]
     
     if data_delete is None:
@@ -688,13 +710,13 @@ async def user_study_place_mutations(client):
     print("--- Finished: UserStudyPlace Mutations ---\n")
 
 async def user_rank_mutations(client):
-    """Testy pro UserRank Insert, Update, Delete."""
+    """CRUD testy pro vazební tabulku UserRank."""
     print("--- Test: UserRank Mutations (Insert, Update, Delete) ---")
     
-    # Fixní User ID dle zadání
     ur_user_id = "14702c35-b0c1-4902-8e3b-722a9615466b"
-    # Načtení všech dostupných Rank ID ze souboru systemdata.json
     available_rank_ids = []
+    
+    # Načtení dat ze systemdata.json pro validní FK
     try:
         if os.path.exists("systemdata.json"):
             with open("systemdata.json", "r", encoding="utf-8") as f:
@@ -713,12 +735,10 @@ async def user_rank_mutations(client):
     except Exception as e:
         print(f"Error loading systemdata.json: {e}")
 
-    # Fallback pokud se nepodařilo načíst žádná data
     if not available_rank_ids:
         print("Fallback: Using random Rank ID (Expect Failure if ID doesn't exist in DB)")
         available_rank_ids.append(str(uuid.uuid4()))
 
-    # ID pro insert (použijeme první dostupné)
     user_rank_id = available_rank_ids[0]
     
     # --- INSERT ---
@@ -757,14 +777,9 @@ async def user_rank_mutations(client):
     lastchange = data_insert["lastchange"]
     
     # --- UPDATE ---
-    # Změníme studyplaceId. Musíme použít platné ID.
-    # Pokud máme více ID, použijeme druhé. Pokud jen jedno, použijeme znovu to první.
-    # Použití náhodného ID způsobí ForeignKeyViolationError.
-    
     if len(available_rank_ids) > 1:
         new_rank_id = available_rank_ids[1]
     else:
-        # Fallback: nemáme jiné validní ID, použijeme to samé, aby test prošel
         print("Warning: Only one Rank ID available. Reusing it for Update test.")
         new_rank_id = available_rank_ids[0]
 
@@ -819,7 +834,6 @@ async def user_rank_mutations(client):
         return
 
     basic_assertions(result_delete)
-    
     data_delete = result_delete["data"]["userRankDelete"]
     
     if data_delete is None:
@@ -835,19 +849,20 @@ async def user_rank_mutations(client):
     print("--- Finished: UserRank Mutations ---\n")
 
 async def user_work_history_position_mutations(client):
-    """Testy pro UserWorkHistoryPosition Insert, Update, Delete."""
+    """
+    CRUD testy pro UserWorkHistoryPosition.
+    Testuje také specifické chybové návratové typy (InsertError, UpdateError).
+    """
     print("--- Test: UserWorkHistoryPosition Mutations (Insert, Update, Delete) ---")
     
-    # Fixní User ID dle zadání (shodné s ostatními testy)
     uwhp_user_id = "14702c35-b0c1-4902-8e3b-722a9615466b"
 
-    # Načtení všech dostupných WorkHistoryPosition ID ze souboru systemdata.json
+    # Načítání FK IDs
     available_whp_ids = []
     try:
         if os.path.exists("systemdata.json"):
             with open("systemdata.json", "r", encoding="utf-8") as f:
                 data = json.load(f)
-                # Předpokládáme klíč "workhistorypositions" na základě konvence
                 whps = data.get("workhistorypositions", [])
                 for w in whps:
                     if w.get("id"):
@@ -862,18 +877,16 @@ async def user_work_history_position_mutations(client):
     except Exception as e:
         print(f"Error loading systemdata.json: {e}")
 
-    # Fallback pokud se nepodařilo načíst žádná data
     if not available_whp_ids:
         print("Fallback: Using random WorkHistoryPosition ID (Expect Failure if ID doesn't exist in DB)")
         available_whp_ids.append(str(uuid.uuid4()))
 
-    # ID pro insert (použijeme první dostupné)
     current_whp_id = available_whp_ids[0]
     
     # --- INSERT ---
     print(f"Insert UserWorkHistoryPosition user_id={uwhp_user_id} workhistoryposition_id={current_whp_id}")
     
-    # Query dle vzoru v moje_pomucka.txt a definice modelu
+    # Fragmenty pro Union typy - ošetření úspěchu i erroru
     query_insert = """
     mutation userWorkhistorypositionInsert($userId: UUID!, $workhistorypositionId: UUID!) {
         userWorkhistorypositionInsert(userWorkhistoryposition: {userId: $userId, workhistorypositionId: $workhistorypositionId}) {
@@ -903,7 +916,7 @@ async def user_work_history_position_mutations(client):
     basic_assertions(result_insert)
     data_insert = result_insert["data"]["userWorkhistorypositionInsert"]
     
-    # Kontrola, zda nedošlo k chybě (InsertError)
+    # Kontrola, zda návratový typ není chyba (logická chyba aplikace, ne GraphQL chyba)
     if data_insert.get("__typename") == "UserWorkHistoryPositionGQLModelInsertError":
         print(f"Insert returned logic error: {data_insert}")
         return
@@ -917,7 +930,6 @@ async def user_work_history_position_mutations(client):
     lastchange = data_insert["lastchange"]
     
     # --- UPDATE ---
-    # Změníme workhistorypositionId. Musíme použít platné ID.
     if len(available_whp_ids) > 1:
         new_whp_id = available_whp_ids[1]
     else:
@@ -989,7 +1001,6 @@ async def user_work_history_position_mutations(client):
         return
 
     basic_assertions(result_delete)
-    
     data_delete = result_delete["data"]["userWorkhistorypositionDelete"]
     
     if data_delete is None:
@@ -1006,11 +1017,15 @@ async def user_work_history_position_mutations(client):
              
     print("--- Finished: UserWorkHistoryPosition Mutations ---\n")
 
-# --- Main Execution ---
+# ==================================================================================
+# Main Loop
+# ==================================================================================
 
 async def main():
+    # Inicializace klienta (výchozí user john.newbie)
     client = createFederationClient()
     
+    # 1. Čtení (Queries)
     await test_study_place_page(client)
     await test_user_study_place_page(client)
     await test_rank_page(client)
@@ -1018,11 +1033,12 @@ async def main():
     await test_user_work_history_position_page(client)
     await test_work_history_position_page(client)
     
+    # 2. Zápisy (Mutations)
     await test_study_place_mutations(client)
-
     await test_rank_mutations(client)
     await work_history_position_mutations(client)
 
+    # 3. Zápisy pro vazební entity
     await user_study_place_mutations(client)
     await user_rank_mutations(client)
     await user_work_history_position_mutations(client)
