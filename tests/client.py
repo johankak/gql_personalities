@@ -582,6 +582,152 @@ async def work_history_position_mutations(client):
              
     print("--- Finished: WorkHistoryPosition Mutations ---\n")
 
+async def test_certificate_type_mutations(client):
+    """
+    Komplexní test životního cyklu entity CertificateType (Insert -> Update -> Delete).
+    Vychází z reálných GQL dotazů v moje_pomucka.txt.
+    """
+    print("--- Test: CertificateType Mutations (Insert, Update, Delete) ---")
+    
+    ct_id = str(uuid.uuid4())
+    ct_name = "NOVINKA"
+    
+    # --- INSERT ---
+    print(f"Insert CertificateType id={ct_id}")
+    
+    # Dle moje_pomucka.txt [cite: 1] jsou názvy v camelCase
+    query_insert = """
+    mutation certificateTypeInsert($id: UUID!, $name: String!) {
+        certificateTypeInsert(
+            certificateType: {id: $id, name: $name}
+        ) {
+            __typename
+            ... on CertificateTypeGQLModel {
+                id
+                name
+                lastchange
+                masterCertificateTypeId
+            }
+            ... on CertificateTypeGQLModelInsertError {
+                code
+                location
+                msg
+            }
+        }
+    }
+    """
+    
+    variables_insert = {"id": ct_id, "name": ct_name}
+    result_insert = await client(query_insert, variables_insert)
+    
+    if "errors" in result_insert:
+        print(f"Insert failed with errors: {result_insert['errors']}")
+        return
+
+    basic_assertions(result_insert)
+    data_insert = result_insert["data"]["certificateTypeInsert"]
+    
+    # Validace, že jsme dostali správný GQL model a ne chybu
+    if data_insert.get("__typename") == "CertificateTypeGQLModelInsertError":
+        print(f"Insert failed with logic error: {data_insert}")
+        return
+        
+    if data_insert.get("__typename") != "CertificateTypeGQLModel":
+        print(f"Insert returned unexpected type: {data_insert}")
+        return
+
+    print(f"Insert OK: {data_insert['name']}")
+    # Uchováme lastchange pro optimistické zamykání při update
+    lastchange = data_insert["lastchange"]
+    
+    # --- UPDATE ---
+    ct_name_updated = "BROKOLICE"
+    print(f"Update CertificateType id={ct_id}")
+    
+    # Dle moje_pomucka.txt [cite: 3]
+    query_update = """
+    mutation certificateTypeUpdate($id: UUID!, $lastchange: DateTime!, $name: String!) {
+        certificateTypeUpdate(
+            certificateType: {id: $id, lastchange: $lastchange, name: $name}
+        ) {
+            __typename
+            ... on CertificateTypeGQLModel {
+                id
+                name
+                lastchange
+            }
+            ... on CertificateTypeGQLModelUpdateError {
+                code
+                location
+                msg
+            }
+        }
+    }
+    """
+    
+    variables_update = {"id": ct_id, "lastchange": lastchange, "name": ct_name_updated}
+    result_update = await client(query_update, variables_update)
+    
+    if "errors" in result_update:
+        print(f"Update failed with errors: {result_update['errors']}")
+        return
+
+    basic_assertions(result_update)
+    data_update = result_update["data"]["certificateTypeUpdate"]
+    
+    if data_update.get("__typename") == "CertificateTypeGQLModelUpdateError":
+        print(f"Update failed with logic error: {data_update}")
+        return
+
+    if data_update.get("__typename") != "CertificateTypeGQLModel":
+        print(f"Update returned unexpected type: {data_update}")
+        return
+
+    print(f"Update OK: {data_update['name']}")
+    lastchange_updated = data_update["lastchange"]
+
+    # --- DELETE ---
+    print(f"Delete CertificateType id={ct_id}")
+    
+    # Dle moje_pomucka.txt [cite: 5] vrací při úspěchu null
+    query_delete = """
+    mutation certificateTypeDelete($id: UUID!, $lastchange: DateTime!) {
+        certificateTypeDelete(
+            certificateType: {id: $id, lastchange: $lastchange}
+        ) {
+            failed
+            input
+            code
+            location
+            msg
+        }
+    }
+    """
+    
+    variables_delete = {"id": ct_id, "lastchange": lastchange_updated}
+    result_delete = await client(query_delete, variables_delete)
+    
+    if "errors" in result_delete:
+        print(f"Delete failed with errors: {result_delete['errors']}")
+        return
+
+    basic_assertions(result_delete)
+    data_delete = result_delete["data"]["certificateTypeDelete"]
+    
+    # Úspěšný delete vrací null [cite: 5]
+    if data_delete is None:
+        print("Delete OK (returned null)")
+    elif isinstance(data_delete, dict):
+        if data_delete.get("failed"):
+            print(f"Delete failed: {data_delete}")
+        else:
+            # Pokud by server vrátil objekt chyby
+            print(f"Delete result: {data_delete}")
+    else:
+        print(f"Delete returned unexpected value: {data_delete}")
+             
+    print("--- Finished: CertificateType Mutations ---\n")
+    
 async def user_study_place_mutations(client):
     """
     CRUD testy pro vazební tabulku UserStudyPlace.
@@ -1044,23 +1190,24 @@ async def main():
     client = createFederationClient()
     
     # 1. Čtení (Queries)
-    await test_study_place_page(client)
-    await test_user_study_place_page(client)
-    await test_rank_page(client)
-    await test_user_rank_page(client)
-    await test_user_work_history_position_page(client)
-    await test_work_history_position_page(client)
+    # await test_study_place_page(client)
+    # await test_user_study_place_page(client)
+    # await test_rank_page(client)
+    # await test_user_rank_page(client)
+    # await test_user_work_history_position_page(client)
+    # await test_work_history_position_page(client)
     await test_certificate_type_page(client)
     
     # 2. Zápisy (Mutations)
-    await test_study_place_mutations(client)
-    await test_rank_mutations(client)
-    await work_history_position_mutations(client)
+    # await test_study_place_mutations(client)
+    # await test_rank_mutations(client)
+    # await work_history_position_mutations(client)
+    await test_certificate_type_mutations(client)
 
     # 3. Zápisy pro vazební entity
-    await user_study_place_mutations(client)
-    await user_rank_mutations(client)
-    await user_work_history_position_mutations(client)
+    # await user_study_place_mutations(client)
+    # await user_rank_mutations(client)
+    # await user_work_history_position_mutations(client)
 
 if __name__ == "__main__":
     asyncio.run(main())

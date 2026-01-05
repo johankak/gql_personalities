@@ -1,5 +1,98 @@
-soubory 
-TreeInputStructureMixin
-InputModelMixin
-EventDBModel
-EventGQLModel
+mutation certificateTypeInsert {
+  certificateTypeInsert(
+    certificateType: {id: "36914f1a-5b53-43bb-9b7e-0529ed2a1e06", masterCertificateTypeId: "3400df72-2c00-4b6a-8382-881450df3f9d", name: "NOVINKA"}
+  ) {
+    ... on CertificateTypeGQLModel {
+      id
+      name
+    }
+    ... on CertificateTypeGQLModelInsertError {
+      code
+      location
+    }
+  }
+}
+
+{
+  "data": {
+    "certificateTypeInsert": {
+      "id": "36914f1a-5b53-43bb-9b7e-0529ed2a1e06",
+      "name": "NOVINKA"
+    }
+  },
+  "extensions": {
+    "ProfilingExtension": {
+      "total": {
+        "count": 1,
+        "sum": 0.013968100000056438,
+        "values": [
+          0.013968100000056438
+        ]
+      }
+    }
+  }
+}
+
+
+
+mutation certificateTypeUpdate {
+  certificateTypeUpdate(
+    certificateType: {id: "36914f1a-5b53-43bb-9b7e-0529ed2a1e06", lastchange: "2026-01-05T18:44:42.593039", masterCertificateTypeId: "bc988cb6-38a7-45a1-97ec-d1e220621355", name: "BROKOLICE"}
+  ) {
+    ... on CertificateTypeGQLModel {
+      id
+      name
+    }
+    ... on CertificateTypeGQLModelUpdateError {
+      code
+      location
+    }
+  }
+}
+
+{
+  "data": {
+    "certificateTypeUpdate": {
+      "id": "36914f1a-5b53-43bb-9b7e-0529ed2a1e06",
+      "name": "BROKOLICE"
+    }
+  },
+  "extensions": {
+    "ProfilingExtension": {
+      "total": {
+        "count": 1,
+        "sum": 0.009079499999643303,
+        "values": [
+          0.009079499999643303
+        ]
+      }
+    }
+  }
+}
+
+mutation certificateTypeDelete {
+  certificateTypeDelete(certificateType: {id: "36914f1a-5b53-43bb-9b7e-0529ed2a1e06", lastchange: "2026-01-05T18:45:39.186590"}) {
+    failed
+    input
+    code
+    location
+    msg
+  }
+}
+
+{
+  "data": {
+    "certificateTypeDelete": null
+  },
+  "extensions": {
+    "ProfilingExtension": {
+      "total": {
+        "count": 1,
+        "sum": 0.010450300000229618,
+        "values": [
+          0.010450300000229618
+        ]
+      }
+    }
+  }
+}
