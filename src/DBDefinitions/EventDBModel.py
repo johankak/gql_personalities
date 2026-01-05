@@ -90,7 +90,7 @@ class EventModel(BaseModel):
     ) # https://docs.sqlalchemy.org/en/20/orm/self_referential.html
 
     subevents = relationship(
-        "EventModel", 
+        "EventModel",
         back_populates="masterevent",
         uselist=True,
         init=True,
