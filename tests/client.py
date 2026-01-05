@@ -236,6 +236,23 @@ async def test_work_history_position_page(client):
     print("--- OK: WorkHistoryPositionPage ---\n")
     return result
 
+async def test_certificate_type_page(client):
+    print("--- Test: CertificateTypePage ---")
+    query = """query certificateTypePage {
+  certificateTypePage {
+    id
+    name
+    masterCertificateTypeId
+    lastchange
+  }
+}"""
+    result = await client(query, {})
+    basic_assertions(result)
+    has_field(result, "certificateTypePage")
+    print("--- OK: certificateTypePage ---\n")
+    return result
+
+
 # ==================================================================================
 # Mutation Tests (CUD operace)
 # ==================================================================================
@@ -1017,6 +1034,7 @@ async def user_work_history_position_mutations(client):
              
     print("--- Finished: UserWorkHistoryPosition Mutations ---\n")
 
+
 # ==================================================================================
 # Main Loop
 # ==================================================================================
@@ -1032,6 +1050,7 @@ async def main():
     await test_user_rank_page(client)
     await test_user_work_history_position_page(client)
     await test_work_history_position_page(client)
+    await test_certificate_type_page(client)
     
     # 2. Zápisy (Mutations)
     await test_study_place_mutations(client)
