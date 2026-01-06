@@ -10454,121 +10454,47 @@
         }
     ],
     "studyplaces": [
-        
-        {
-            "name": "Akademie múzických umění v Praze (AMU)",
-            "id": "88556487-cbf0-46ec-889a-71720b93ea37"
-        },
-        {
-            "name": "Akademie výtvarných umění v Praze (AVU)",
-            "id": "2b84e0ab-fe7b-4104-8601-4553caa0f83d"
-        },
-        {
-            "name": "Česká zemědělská univerzita v Praze (ČZU)",
-            "id": "db8a49b1-5c1d-4681-b964-8a32db02c0a0"
-        },
-        {
-            "name": "České vysoké učení technické v Praze (ČVUT)",
-            "id": "635135dc-f119-4a1c-88dd-f5fc8395f501"
-        },
-        {
-            "name": "Janáčkova akademie múzických umění (JAMU)",
-            "id": "10f191ae-284f-44ed-90ce-29b3cdadc070"
-        },
-        {
-            "name": "Jihočeská univerzita v Českých Budějovicích (JU)",
-            "id": "4bdb5ce2-ad70-4c2b-9ba5-516d3df3fb3b"
-        },
-        {
-            "name": "Masarykova univerzita (MU)",
-            "id": "782e1ee1-9f15-46bd-8e74-3e546c9afd37"
-        },
-        {
-            "name": "Mendelova univerzita v Brně (MENDELU)",
-            "id": "258f8f4e-a7f2-418f-bdd9-cfbbf8f38099"
-        },
-        {
-            "name": "Ostravská univerzita (OU)",
-            "id": "0a9d1130-5bc2-4de2-92a1-8c1be055e707"
-        },
-        {
-            "name": "Slezská univerzita v Opavě (SU)",
-            "id": "d51f4119-0918-4427-ad36-27818dc49bc3"
-        },
-        {
-            "name": "Technická univerzita v Liberci (TUL)",
-            "id": "6a059f6f-16d9-4cb8-94ac-084d6165a345"
-        },
-        {
-            "name": "Univerzita Hradec Králové (UHK)",
-            "id": "b8491178-53fd-4b6b-84cb-5cb8d859d489"
-        },
-        {
-            "name": "Univerzita Jana Evangelisty Purkyně v Ústí nad Labem (UJEP)",
-            "id": "236a2e9f-010c-443c-84e7-52973e8094fd"
-        },
-        {
-            "name": "Univerzita Karlova (UK)",
-            "id": "94115ab6-0443-473c-b66e-0c6d29572c89"
-        },
-        {
-            "name": "Univerzita Palackého v Olomouci (UP)",
-            "id": "e7e69091-982b-4f0c-80ad-a5bb074ef5bd"
-        },
-        {
-            "name": "Univerzita Pardubice (UPCE)",
-            "id": "c2886fd7-c3df-470a-9abc-25617e838453"
-        },
-        {
-            "name": "Univerzita Tomáše Bati ve Zlíně (UTB, zkrácený název: UTB ve Zlíně)",
-            "id": "533ed300-f78e-4f8e-abb1-7b039ff63438"
-        },
-        {
-            "name": "Veterinární univerzita Brno (VETUNI)",
-            "id": "a8f84591-d060-4763-8b95-890f5e9e9dc1"
-        },
-        {
-            "name": "Vysoká škola báňská - Technická univerzita Ostrava (VŠB-TUO, zkrácený název: VŠB - Technická univerzita Ostrava)",
-            "id": "c63b55eb-c6a0-4302-aa27-3ff8f082cc35"
-        },
-        {
-            "name": "Vysoká škola ekonomická v Praze (VŠE)",
-            "id": "b38fc480-98bd-4a9c-8b3f-58a0eff3506c"
-        },
-        {
-            "name": "Vysoká škola chemicko-technologická v Praze (VŠCHT Praha)",
-            "id": "cce2633e-a059-4b72-92d3-52652f6bc07c"
-        },
-        {
-            "name": "Vysoká škola polytechnická Jihlava (VŠPJ či VŠP Jihlava)",
-            "id": "9f128a38-6405-4435-a4f2-be7050755a2e"
-        },
-        {
-            "name": "Vysoká škola technická a ekonomická v Českých Budějovicích (VŠTE)",
-            "id": "8e1c2c35-50fd-40b6-9cd9-cad795f20dbf"
-        },
-        {
-            "name": "Vysoká škola uměleckoprůmyslová v Praze (UMPRUM)",
-            "id": "4c807453-dd9d-455f-a334-f4007f2bbefc"
-        },
-        {
-            "name": "Vysoké učení technické v Brně (VUT)",
-            "id": "4bb8f25a-79e5-493a-9b52-dbb2855537b8"
-        },
-        {
-            "name": "Západočeská univerzita v Plzni (ZČU)",
-            "id": "fbad1416-2f46-4671-927c-100be0914dcb"
-        },
-        
-        {
-            "name": "Policejní akademie České republiky v Praze (POLAC)",
-            "id": "31a7d00f-de73-4d70-9e02-a139d0a3096c"
-        },
-        {
-            "name": "Univerzita obrany (UNOB)",
-            "id": "3da845f7-a616-4ed9-98d8-329fac7fae81"
-        }
-    ],
+    { "name": "Všeobecné univerzity", "id": "6ebb6778-e450-4655-8e9a-a9ab013267b0", "master_studyplace_id": null },
+    { "name": "Technické univerzity", "id": "e5f71006-fc41-4b13-b44d-2c066e77504e", "master_studyplace_id": null },
+    { "name": "Ekonomické a obchodní školy", "id": "27737611-8776-4236-a7e5-5daff57bfb69", "master_studyplace_id": null },
+    { "name": "Umělecké akademie", "id": "dab79b4a-15bd-41dd-ab67-a4497ce65b85", "master_studyplace_id": null },
+    { "name": "Zemědělské a veterinární univerzity", "id": "8a6c20ec-4d86-41ef-9805-e9059ff75629", "master_studyplace_id": null },
+    { "name": "Státní školy (ozbrojené složky)", "id": "4f7017ec-14df-4939-9f1e-2353b831d89d", "master_studyplace_id": null },
+
+    { "name": "Univerzita Karlova (UK)", "id": "94115ab6-0443-473c-b66e-0c6d29572c89", "master_studyplace_id": "6ebb6778-e450-4655-8e9a-a9ab013267b0" },
+    { "name": "Masarykova univerzita (MU)", "id": "782e1ee1-9f15-46bd-8e74-3e546c9afd37", "master_studyplace_id": "6ebb6778-e450-4655-8e9a-a9ab013267b0" },
+    { "name": "Univerzita Palackého v Olomouci (UP)", "id": "e7e69091-982b-4f0c-80ad-a5bb074ef5bd", "master_studyplace_id": "6ebb6778-e450-4655-8e9a-a9ab013267b0" },
+    { "name": "Jihočeská univerzita v Českých Budějovicích (JU)", "id": "4bdb5ce2-ad70-4c2b-9ba5-516d3df3fb3b", "master_studyplace_id": "6ebb6778-e450-4655-8e9a-a9ab013267b0" },
+    { "name": "Ostravská univerzita (OU)", "id": "0a9d1130-5bc2-4de2-92a1-8c1be055e707", "master_studyplace_id": "6ebb6778-e450-4655-8e9a-a9ab013267b0" },
+    { "name": "Slezská univerzita v Opavě (SU)", "id": "d51f4119-0918-4427-ad36-27818dc49bc3", "master_studyplace_id": "6ebb6778-e450-4655-8e9a-a9ab013267b0" },
+    { "name": "Univerzita Hradec Králové (UHK)", "id": "b8491178-53fd-4b6b-84cb-5cb8d859d489", "master_studyplace_id": "6ebb6778-e450-4655-8e9a-a9ab013267b0" },
+    { "name": "Univerzita Jana Evangelisty Purkyně v Ústí nad Labem (UJEP)", "id": "236a2e9f-010c-443c-84e7-52973e8094fd", "master_studyplace_id": "6ebb6778-e450-4655-8e9a-a9ab013267b0" },
+    { "name": "Univerzita Pardubice (UPCE)", "id": "c2886fd7-c3df-470a-9abc-25617e838453", "master_studyplace_id": "6ebb6778-e450-4655-8e9a-a9ab013267b0" },
+    { "name": "Univerzita Tomáše Bati ve Zlíně (UTB)", "id": "533ed300-f78e-4f8e-abb1-7b039ff63438", "master_studyplace_id": "6ebb6778-e450-4655-8e9a-a9ab013267b0" },
+    { "name": "Západočeská univerzita v Plzni (ZČU)", "id": "fbad1416-2f46-4671-927c-100be0914dcb", "master_studyplace_id": "6ebb6778-e450-4655-8e9a-a9ab013267b0" },
+
+    { "name": "České vysoké učení technické v Praze (ČVUT)", "id": "635135dc-f119-4a1c-88dd-f5fc8395f501", "master_studyplace_id": "e5f71006-fc41-4b13-b44d-2c066e77504e" },
+    { "name": "Vysoké učení technické v Brně (VUT)", "id": "4bb8f25a-79e5-493a-9b52-dbb2855537b8", "master_studyplace_id": "e5f71006-fc41-4b13-b44d-2c066e77504e" },
+    { "name": "Technická univerzita v Liberci (TUL)", "id": "6a059f6f-16d9-4cb8-94ac-084d6165a345", "master_studyplace_id": "e5f71006-fc41-4b13-b44d-2c066e77504e" },
+    { "name": "Vysoká škola báňská - Technická univerzita Ostrava (VŠB-TUO)", "id": "c63b55eb-c6a0-4302-aa27-3ff8f082cc35", "master_studyplace_id": "e5f71006-fc41-4b13-b44d-2c066e77504e" },
+    { "name": "Vysoká škola chemicko-technologická v Praze (VŠCHT Praha)", "id": "cce2633e-a059-4b72-92d3-52652f6bc07c", "master_studyplace_id": "e5f71006-fc41-4b13-b44d-2c066e77504e" },
+
+    { "name": "Vysoká škola ekonomická v Praze (VŠE)", "id": "b38fc480-98bd-4a9c-8b3f-58a0eff3506c", "master_studyplace_id": "27737611-8776-4236-a7e5-5daff57bfb69" },
+    { "name": "Vysoká škola polytechnická Jihlava (VŠPJ)", "id": "9f128a38-6405-4435-a4f2-be7050755a2e", "master_studyplace_id": "27737611-8776-4236-a7e5-5daff57bfb69" },
+    { "name": "Vysoká škola technická a ekonomická v Českých Budějovicích (VŠTE)", "id": "8e1c2c35-50fd-40b6-9cd9-cad795f20dbf", "master_studyplace_id": "27737611-8776-4236-a7e5-5daff57bfb69" },
+
+    { "name": "Akademie múzických umění v Praze (AMU)", "id": "88556487-cbf0-46ec-889a-71720b93ea37", "master_studyplace_id": "dab79b4a-15bd-41dd-ab67-a4497ce65b85" },
+    { "name": "Akademie výtvarných umění v Praze (AVU)", "id": "2b84e0ab-fe7b-4104-8601-4553caa0f83d", "master_studyplace_id": "dab79b4a-15bd-41dd-ab67-a4497ce65b85" },
+    { "name": "Janáčkova akademie múzických umění (JAMU)", "id": "10f191ae-284f-44ed-90ce-29b3cdadc070", "master_studyplace_id": "dab79b4a-15bd-41dd-ab67-a4497ce65b85" },
+    { "name": "Vysoká škola uměleckoprůmyslová v Praze (UMPRUM)", "id": "4c807453-dd9d-455f-a334-f4007f2bbefc", "master_studyplace_id": "dab79b4a-15bd-41dd-ab67-a4497ce65b85" },
+
+    { "name": "Česká zemědělská univerzita v Praze (ČZU)", "id": "db8a49b1-5c1d-4681-b964-8a32db02c0a0", "master_studyplace_id": "8a6c20ec-4d86-41ef-9805-e9059ff75629" },
+    { "name": "Mendelova univerzita v Brně (MENDELU)", "id": "258f8f4e-a7f2-418f-bdd9-cfbbf8f38099", "master_studyplace_id": "8a6c20ec-4d86-41ef-9805-e9059ff75629" },
+    { "name": "Veterinární univerzita Brno (VETUNI)", "id": "a8f84591-d060-4763-8b95-890f5e9e9dc1", "master_studyplace_id": "8a6c20ec-4d86-41ef-9805-e9059ff75629" },
+
+    { "name": "Policejní akademie České republiky v Praze (POLAC)", "id": "31a7d00f-de73-4d70-9e02-a139d0a3096c", "master_studyplace_id": "4f7017ec-14df-4939-9f1e-2353b831d89d" },
+    { "name": "Univerzita obrany (UNOB)", "id": "3da845f7-a616-4ed9-98d8-329fac7fae81", "master_studyplace_id": "4f7017ec-14df-4939-9f1e-2353b831d89d" }
+],
     "user_studyplaces": [
         {
             "id": "d04b625c-3a1f-4f84-83ca-23f751327c65",

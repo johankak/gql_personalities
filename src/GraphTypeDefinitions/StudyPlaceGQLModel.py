@@ -36,13 +36,16 @@ from uoishelpers.gqlpermissions.UserAbsoluteAccessControlExtension import UserAb
 
 from .BaseGQLModel import BaseGQLModel, IDType, Relation
 
+# Dopředná deklarace pro rekurzivní typy
+StudyPlaceGQLModel = typing.Annotated["StudyPlaceGQLModel", strawberry.lazy(".StudyPlaceGQLModel")]
+
 @createInputs2
 class StudyPlaceInputFilter:
     name: str
     path: str
     level: int
     id: IDType
-    parent_id: IDType
+    master_studyplace_id: IDType
 
 @strawberry.federation.type(
     description="""Entity representing a StudyPlace""",
@@ -53,10 +56,34 @@ class StudyPlaceGQLModel(BaseGQLModel):
     def getLoader(cls, info: strawberry.types.Info):
         return getLoadersFromInfo(info).StudyPlaceModel
 
+    path: typing.Optional[str] = strawberry.field(
+        description="""Materialized path representing the hierarchy location.""",
+        default=None,
+        permission_classes=[OnlyForAuthentized]
+    )
+
     name: typing.Optional[str] = strawberry.field(
         default=None,
         description="""StudyPlace name""",
         permission_classes=[OnlyForAuthentized]
+    )
+
+    master_studyplace_id: typing.Optional[IDType] = strawberry.field(
+        default=None,
+        description="""Parent StudyPlace ID""",
+        permission_classes=[OnlyForAuthentized]
+    )
+
+    master_studyplace: typing.Optional["StudyPlaceGQLModel"] = strawberry.field(
+        description="""Parent StudyPlace""",
+        permission_classes=[OnlyForAuthentized],
+        resolver=ScalarResolver["StudyPlaceGQLModel"](fkey_field_name="master_studyplace_id")
+    )
+
+    sub_studyplaces: typing.List["StudyPlaceGQLModel"] = strawberry.field(
+        description="""Child StudyPlaces""",
+        permission_classes=[OnlyForAuthentized],
+        resolver=VectorResolver["StudyPlaceGQLModel"](fkey_field_name="master_studyplace_id", whereType=StudyPlaceInputFilter)
     )
 
 @strawberry.interface(
@@ -83,7 +110,7 @@ from uoishelpers.resolvers import TreeInputStructureMixin, InputModelMixin
 class StudyPlaceInsertGQLModel(TreeInputStructureMixin):
     getLoader = StudyPlaceGQLModel.getLoader
     
-    parent_id: typing.Optional[IDType] = strawberry.field(
+    master_studyplace_id: typing.Optional[IDType] = strawberry.field(
         description="""Parent StudyPlace id""",
         default=None
     )
@@ -98,7 +125,7 @@ class StudyPlaceInsertGQLModel(TreeInputStructureMixin):
         default=None
     )
     
-    children: typing.Optional[typing.List["StudyPlaceInsertGQLModel"]] = strawberry.field(
+    sub_studyplaces: typing.Optional[typing.List["StudyPlaceInsertGQLModel"]] = strawberry.field(
         description="Child StudyPlaces",
         default_factory=list
     )
@@ -120,7 +147,7 @@ class StudyPlaceUpdateGQLModel:
         description="""StudyPlace name""",
         default=None
     )
-    parent_id: typing.Optional[IDType] = strawberry.field(
+    master_studyplace_id: typing.Optional[IDType] = strawberry.field(
         description="""Parent StudyPlace id""",
         default=None
     )

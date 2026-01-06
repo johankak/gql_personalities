@@ -8,27 +8,51 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
 )
-from sqlalchemy.orm import Mapped, mapped_column, synonym
-
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import relationship, column_property
+from sqlalchemy.orm import Mapped, mapped_column, synonym, relationship
 
 from .BaseModel import BaseModel, UUIDColumn, UUIDFKey, IDType
 
-###########################################################################################################################
-#
-# zde definujte sve SQLAlchemy modely
-# je-li treba, muzete definovat modely obsahujici jen id polozku, na ktere se budete odkazovat
-#
-###########################################################################################################################
 class StudyPlaceModel(BaseModel):
     __tablename__ = "studyplaces"
 
-    # Materialized path technique
-    parent_attribute_name = "parent"
+    # Konfigurace pro stromovou strukturu
     path_attribute_name = "path"
-    children_attribute_name = "children"
-    parent_id_attribute_name = "parent_id"
+    parent_attribute_name = "master_studyplace"
+    parent_id_attribute_name = "master_studyplace_id"
+    children_attribute_name = "sub_studyplaces"
+    
+    # Materialized path column
+    path: Mapped[str] = mapped_column(
+        index=True,
+        nullable=True,
+        default=None,
+        comment="Materialized path technique"
+    )
     
     name: Mapped[str] = mapped_column(default=None, nullable=True)
-    
+
+    # Cizí klíč na rodiče
+    master_studyplace_id: Mapped[IDType] = mapped_column(
+        ForeignKey("studyplaces.id"),
+        nullable=True,
+        default=None,
+        index=True,
+    )
+
+    # Relace na rodiče
+    master_studyplace = relationship(
+        "StudyPlaceModel",
+        viewonly=True, 
+        remote_side="StudyPlaceModel.id",
+        uselist=False,
+        back_populates="sub_studyplaces",
+    )
+
+    # Relace na děti
+    sub_studyplaces = relationship(
+        "StudyPlaceModel",
+        back_populates="master_studyplace",
+        uselist=True,
+        init=True,
+        cascade="save-update"
+    )
