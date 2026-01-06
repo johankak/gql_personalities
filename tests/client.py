@@ -252,6 +252,24 @@ async def test_certificate_type_page(client):
     print("--- OK: certificateTypePage ---\n")
     return result
 
+async def test_user_certificate_type_page(client):
+    print("--- Test: userCertificateTypePage ---")
+    query = """query userCertificateTypePage {
+        userCertificateTypePage {
+            id
+            lastchange
+            userId
+            certificateTypeId
+            startdate
+            enddate
+            isValid
+        }
+    }"""
+    result = await client(query, {})
+    basic_assertions(result)
+    has_field(result, "userCertificateTypePage")
+    print("--- OK: userCertificateTypePage ---\n")
+    return result
 
 # ==================================================================================
 # Mutation Tests (CUD operace)
@@ -1180,6 +1198,191 @@ async def user_work_history_position_mutations(client):
              
     print("--- Finished: UserWorkHistoryPosition Mutations ---\n")
 
+async def user_certificate_type_mutations(client):
+    """
+    CRUD testy pro vazební tabulku UserCertificateType.
+    Testuje Insert, Update (včetně změny FK) a Delete.
+    Respektuje konvence názvů chybových typů (UserCertificateTypeGQLModelInsertError atd.).
+    """
+    print("--- Test: UserCertificateType Mutations (Insert, Update, Delete) ---")
+    
+    # Pevné ID uživatele (stejné jako v ostatních testech)
+    uct_user_id = "14702c35-b0c1-4902-8e3b-722a9615466b"
+    available_cert_type_ids = []
+    
+    # Načtení dat ze systemdata.json pro validní FK (CertificateType)
+    try:
+        if os.path.exists("systemdata.json"):
+            with open("systemdata.json", "r", encoding="utf-8") as f:
+                data = json.load(f)
+                # Předpokládáme klíč 'certificatetypes'
+                ctypes = data.get("certificatetypes", []) 
+                for ct in ctypes:
+                    if ct.get("id"):
+                        available_cert_type_ids.append(ct.get("id"))
+
+                if available_cert_type_ids:
+                    print(f"Loaded {len(available_cert_type_ids)} CertificateType IDs from systemdata.json")
+                else:
+                    print("Warning: 'certificatetypes' found but no IDs loaded")
+        else:
+            print("Warning: systemdata.json not found")
+    except Exception as e:
+        print(f"Error loading systemdata.json: {e}")
+
+    # Fallback pokud nejsou data
+    if not available_cert_type_ids:
+        print("Fallback: Using random CertificateType ID (Expect Failure if ID doesn't exist in DB)")
+        available_cert_type_ids.append(str(uuid.uuid4()))
+
+    current_ct_id = available_cert_type_ids[0]
+    
+    # --- INSERT ---
+    print(f"Insert UserCertificateType user_id={uct_user_id} certificate_type_id={current_ct_id}")
+    
+    query_insert = """
+    mutation userCertificateTypeInsert($userId: UUID!, $certificateTypeId: UUID!) {
+        userCertificateTypeInsert(
+            userCertificateType: {
+                userId: $userId, 
+                certificateTypeId: $certificateTypeId,
+            }
+        ) {
+            __typename
+            ... on UserCertificateTypeGQLModel {
+                id
+                lastchange
+                userId
+                certificateTypeId
+            }
+            ... on UserCertificateTypeGQLModelInsertError {
+                code
+                location
+                msg
+            }
+        }
+    }
+    """
+    
+    variables_insert = {"userId": uct_user_id, "certificateTypeId": current_ct_id}
+    result_insert = await client(query_insert, variables_insert)
+    
+    if "errors" in result_insert:
+        print(f"Insert failed with errors: {result_insert['errors']}")
+        return
+
+    basic_assertions(result_insert)
+    data_insert = result_insert["data"]["userCertificateTypeInsert"]
+    
+    # Kontrola na logickou chybu
+    if data_insert.get("__typename") == "UserCertificateTypeGQLModelInsertError":
+        print(f"Insert returned logic error: {data_insert}")
+        return
+
+    if data_insert.get("__typename") != "UserCertificateTypeGQLModel":
+        print(f"Insert returned unexpected type: {data_insert}")
+        return
+
+    print("Insert OK")
+    uct_id = data_insert["id"]
+    lastchange = data_insert["lastchange"]
+    
+    # --- UPDATE ---
+    # Pokud máme více typů certifikátů, zkusíme změnit vazbu
+    if len(available_cert_type_ids) > 1:
+        new_ct_id = available_cert_type_ids[1]
+    else:
+        print("Warning: Only one CertificateType ID available. Reusing it for Update test.")
+        new_ct_id = available_cert_type_ids[0]
+
+    print(f"Update UserCertificateType id={uct_id} -> new certificateTypeId={new_ct_id}")
+    
+    query_update = """
+    mutation userCertificateTypeUpdate($id: UUID!, $lastchange: DateTime!, $certificateTypeId: UUID!) {
+        userCertificateTypeUpdate(
+            userCertificateType: {
+                id: $id, 
+                lastchange: $lastchange, 
+                certificateTypeId: $certificateTypeId,
+            }
+        ) {
+            __typename
+            ... on UserCertificateTypeGQLModel {
+                id
+                lastchange
+                certificateTypeId
+            }
+            ... on UserCertificateTypeGQLModelUpdateError {
+                code
+                location
+                msg
+            }
+        }
+    }
+    """
+    
+    variables_update = {"id": uct_id, "lastchange": lastchange, "certificateTypeId": new_ct_id}
+    result_update = await client(query_update, variables_update)
+    
+    if "errors" in result_update:
+        print(f"Update failed with errors: {result_update['errors']}")
+        return
+
+    basic_assertions(result_update)
+    data_update = result_update["data"]["userCertificateTypeUpdate"]
+    
+    if data_update.get("__typename") == "UserCertificateTypeGQLModelUpdateError":
+        print(f"Update returned logic error: {data_update}")
+        return
+
+    if data_update.get("__typename") != "UserCertificateTypeGQLModel":
+        print(f"Update returned unexpected type: {data_update}")
+        return
+
+    print("Update OK")
+    lastchange_updated = data_update["lastchange"]
+
+    # --- DELETE ---
+    print(f"Delete UserCertificateType id={uct_id}")
+    
+    query_delete = """
+    mutation userCertificateTypeDelete($id: UUID!, $lastchange: DateTime!) {
+        userCertificateTypeDelete(
+            userCertificateType: {id: $id, lastchange: $lastchange}
+        ) {
+            __typename
+            ... on UserCertificateTypeGQLModelDeleteError {
+                code
+                location
+                msg
+            }
+        }
+    }
+    """
+    
+    variables_delete = {"id": uct_id, "lastchange": lastchange_updated}
+    result_delete = await client(query_delete, variables_delete)
+    
+    if "errors" in result_delete:
+        print(f"Delete failed with errors: {result_delete['errors']}")
+        return
+
+    basic_assertions(result_delete)
+    data_delete = result_delete["data"]["userCertificateTypeDelete"]
+    
+    if data_delete is None:
+        print("Delete OK (returned null)")
+    elif isinstance(data_delete, dict):
+        if data_delete.get("__typename") == "UserCertificateTypeGQLModelDeleteError":
+             print(f"Delete failed with logic error: {data_delete}")
+        elif data_delete.get("failed"):
+            print(f"Delete failed: {data_delete}")
+        else:
+            print(f"Delete OK (returned object: {data_delete.get('__typename')})")
+    else:
+        print(f"Delete returned unexpected value: {data_delete}")
+             
+    print("--- Finished: UserCertificateType Mutations ---\n")
 
 # ==================================================================================
 # Main Loop
@@ -1190,24 +1393,26 @@ async def main():
     client = createFederationClient()
     
     # 1. Čtení (Queries)
-    # await test_study_place_page(client)
-    # await test_user_study_place_page(client)
-    # await test_rank_page(client)
-    # await test_user_rank_page(client)
-    # await test_user_work_history_position_page(client)
-    # await test_work_history_position_page(client)
+    await test_study_place_page(client)
+    await test_user_study_place_page(client)
+    await test_rank_page(client)
+    await test_user_rank_page(client)
+    await test_user_work_history_position_page(client)
+    await test_work_history_position_page(client)
     await test_certificate_type_page(client)
-    
+    await test_user_certificate_type_page(client)
+
     # 2. Zápisy (Mutations)
-    # await test_study_place_mutations(client)
-    # await test_rank_mutations(client)
-    # await work_history_position_mutations(client)
+    await test_study_place_mutations(client)
+    await test_rank_mutations(client)
+    await work_history_position_mutations(client)
     await test_certificate_type_mutations(client)
 
     # 3. Zápisy pro vazební entity
-    # await user_study_place_mutations(client)
-    # await user_rank_mutations(client)
-    # await user_work_history_position_mutations(client)
+    await user_study_place_mutations(client)
+    await user_rank_mutations(client)
+    await user_work_history_position_mutations(client)
+    await user_certificate_type_mutations(client)
 
 if __name__ == "__main__":
     asyncio.run(main())
