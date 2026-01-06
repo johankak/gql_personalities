@@ -36,13 +36,16 @@ from uoishelpers.gqlpermissions.UserAbsoluteAccessControlExtension import UserAb
 
 from .BaseGQLModel import BaseGQLModel, IDType, Relation
 
+# Dopředná deklarace pro rekurzivní typy
+WorkHistoryPositionGQLModel = typing.Annotated["WorkHistoryPositionGQLModel", strawberry.lazy(".WorkHistoryPositionGQLModel")]
+
 @createInputs2
 class WorkHistoryPositionInputFilter:
     name: str
     path: str
     level: int
     id: IDType
-    parent_id: IDType
+    master_workhistoryposition_id: IDType
 
 @strawberry.federation.type(
     description="""Entity representing a WorkHistoryPosition""",
@@ -53,7 +56,11 @@ class WorkHistoryPositionGQLModel(BaseGQLModel):
     def getLoader(cls, info: strawberry.types.Info):
         return getLoadersFromInfo(info).WorkHistoryPositionModel
 
-    
+    path: typing.Optional[str] = strawberry.field(
+        description="""Materialized path representing the hierarchy location.""",
+        default=None,
+        permission_classes=[OnlyForAuthentized]
+    )
 
     name: typing.Optional[str] = strawberry.field(
         default=None,
@@ -61,9 +68,23 @@ class WorkHistoryPositionGQLModel(BaseGQLModel):
         permission_classes=[OnlyForAuthentized]
     )
 
-    
-    
+    master_workhistoryposition_id: typing.Optional[IDType] = strawberry.field(
+        default=None,
+        description="""Parent position ID (master_workhistoryposition_id)""",
+        permission_classes=[OnlyForAuthentized]
+    )
 
+    master_workhistoryposition: typing.Optional["WorkHistoryPositionGQLModel"] = strawberry.field(
+        description="""Parent WorkHistoryPosition""",
+        permission_classes=[OnlyForAuthentized],
+        resolver=ScalarResolver["WorkHistoryPositionGQLModel"](fkey_field_name="master_workhistoryposition_id")
+    )
+
+    sub_workhistorypositions: typing.List["WorkHistoryPositionGQLModel"] = strawberry.field(
+        description="""Child WorkHistoryPositions (sub-positions)""",
+        permission_classes=[OnlyForAuthentized],
+        resolver=VectorResolver["WorkHistoryPositionGQLModel"](fkey_field_name="master_workhistoryposition_id", whereType=WorkHistoryPositionInputFilter)
+    )
 
 @strawberry.interface(
     description="""WorkHistoryPosition queries"""
@@ -89,7 +110,7 @@ from uoishelpers.resolvers import TreeInputStructureMixin, InputModelMixin
 class WorkHistoryPositionInsertGQLModel(TreeInputStructureMixin):
     getLoader = WorkHistoryPositionGQLModel.getLoader
     
-    parent_id: typing.Optional[IDType] = strawberry.field(
+    master_workhistoryposition_id: typing.Optional[IDType] = strawberry.field(
         description="""Parent WorkHistoryPosition id""",
         default=None
     )
@@ -104,7 +125,8 @@ class WorkHistoryPositionInsertGQLModel(TreeInputStructureMixin):
         default=None
     )
     
-    children: typing.Optional[typing.List["WorkHistoryPositionInsertGQLModel"]] = strawberry.field(
+    # Rekurzivní vkládání dětí
+    sub_workhistorypositions: typing.Optional[typing.List["WorkHistoryPositionInsertGQLModel"]] = strawberry.field(
         description="Child WorkHistoryPositions",
         default_factory=list
     )
@@ -126,7 +148,7 @@ class WorkHistoryPositionUpdateGQLModel:
         description="""WorkHistoryPosition name""",
         default=None
     )
-    parent_id: typing.Optional[IDType] = strawberry.field(
+    master_workhistoryposition_id: typing.Optional[IDType] = strawberry.field(
         description="""Parent WorkHistoryPosition id""",
         default=None
     )

@@ -601,10 +601,6 @@ async def work_history_position_mutations(client):
     print("--- Finished: WorkHistoryPosition Mutations ---\n")
 
 async def test_certificate_type_mutations(client):
-    """
-    Komplexní test životního cyklu entity CertificateType (Insert -> Update -> Delete).
-    Vychází z reálných GQL dotazů v moje_pomucka.txt.
-    """
     print("--- Test: CertificateType Mutations (Insert, Update, Delete) ---")
     
     ct_id = str(uuid.uuid4())
