@@ -10602,7 +10602,7 @@
             "rbacobject_id": "51d101a0-81f1-44ca-8366-6cf51432e8d6"
         }
     ],
-    "personalitiescertificatetypes": [
+    "certificatetypes": [
         {
             "name": "jazykové",
             "name_en": "language",
@@ -10681,6 +10681,14 @@
             "name": "STANAG Russian", "id": "43089ad0-722c-4f13-9a89-c809b2e3ecee", "master_certificate_type_id": "3400df72-2c00-4b6a-8382-881450df3f9d"},
         {
             "name": "STANAG Polish", "id": "634fe5b9-8494-4586-b67a-191157c0ed60", "master_certificate_type_id": "3400df72-2c00-4b6a-8382-881450df3f9d"}
+    ],
+    "user_certificatetypes": [
+        {
+            "id": "0e1a6563-09ea-472d-9d49-ce155e95306f",
+            "user_id": "14702c35-b0c1-4902-8e3b-722a9615466b",
+            "certificate_type_id": "228ad8c0-8ef9-48ec-9ad1-fa9e9c123d50",
+            "rbacobject_id": "51d101a0-81f1-44ca-8366-6cf51432e8d6"
+        }
     ],
     
     "medalcategories": [

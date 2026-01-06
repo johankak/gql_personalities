@@ -13,7 +13,7 @@ from sqlalchemy.orm import Mapped, mapped_column, synonym, relationship
 from .BaseModel import BaseModel, UUIDColumn, UUIDFKey, IDType
 
 class CertificateTypeModel(BaseModel):
-    __tablename__ = "personalitiescertificatetypes"
+    __tablename__ = "certificatetypes"
 
     # Konfigurace pro stromovou strukturu (názvy atributů v tomto modelu)
     path_attribute_name = "path"
@@ -33,7 +33,7 @@ class CertificateTypeModel(BaseModel):
 
     # Cizí klíč na rodiče (přejmenováno na master_certificate_type_id)
     master_certificate_type_id: Mapped[IDType] = mapped_column(
-        ForeignKey("personalitiescertificatetypes.id"),
+        ForeignKey("certificatetypes.id"),
         nullable=True,
         default=None,
         index=True,
