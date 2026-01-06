@@ -30,6 +30,7 @@ from uoishelpers.resolvers import (
 from uoishelpers.gqlpermissions.LoadDataExtension import LoadDataExtension
 from uoishelpers.gqlpermissions.RbacProviderExtension import RbacProviderExtension
 from uoishelpers.gqlpermissions.UserRoleProviderExtension import UserRoleProviderExtension
+from uoishelpers.gqlpermissions.UserAbsoluteAccessControlExtension import UserAbsoluteAccessControlExtension
 
 from .BaseGQLModel import BaseGQLModel, IDType, Relation
 
@@ -41,7 +42,7 @@ class CertificateTypeInputFilter:
     name: str
     path: str
     id: IDType
-    master_certificate_type_id: IDType # Zde je požadované pole pro filtraci
+    master_certificate_type_id: IDType 
 
 @strawberry.federation.type(
     description="""Entity representing a CertificateType in a tree structure""",
@@ -64,7 +65,6 @@ class CertificateTypeGQLModel(BaseGQLModel):
         permission_classes=[OnlyForAuthentized]
     )
 
-    # Zde je pole, které jste chtěl vypsat
     master_certificate_type_id: typing.Optional[IDType] = strawberry.field(
         default=None,
         description="""Parent type ID (master_certificate_type_id)""",
@@ -172,44 +172,47 @@ class CertificateTypeDeleteGQLModel:
 class CertificateTypeMutation:
     @strawberry.mutation(
         description="""Insert a CertificateType (supports tree structure)""",
-        permission_classes=[
-            OnlyForAuthentized,
-            SimpleInsertPermission[CertificateTypeGQLModel](roles=["administrátor"])
+        permission_classes=[OnlyForAuthentized],
+        extensions=[
+            UserAbsoluteAccessControlExtension(roles=["administrátor"])
         ]
     )
     async def certificate_type_insert(
         self,
         info: strawberry.Info,
         certificate_type: CertificateTypeInsertGQLModel,
+        user_roles: typing.List[typing.Any] = None
     ) -> typing.Union[CertificateTypeGQLModel, InsertError[CertificateTypeGQLModel]]:
         return await Insert[CertificateTypeGQLModel].DoItSafeWay(info=info, entity=certificate_type)
     
 
     @strawberry.mutation(
         description="""Update a CertificateType""",
-        permission_classes=[
-            OnlyForAuthentized,
-            SimpleUpdatePermission[CertificateTypeGQLModel](roles=["administrátor"])
+        permission_classes=[OnlyForAuthentized],
+        extensions=[
+            UserAbsoluteAccessControlExtension(roles=["administrátor"])
         ]
     )
     async def certificate_type_update(
         self,
         info: strawberry.Info,
-        certificate_type: CertificateTypeUpdateGQLModel
+        certificate_type: CertificateTypeUpdateGQLModel,
+        user_roles: typing.List[typing.Any] = None
     ) -> typing.Union[CertificateTypeGQLModel, UpdateError[CertificateTypeGQLModel]]:
         return await Update[CertificateTypeGQLModel].DoItSafeWay(info=info, entity=certificate_type)
     
 
     @strawberry.mutation(
         description="""Delete a CertificateType""",
-        permission_classes=[
-            OnlyForAuthentized,
-            SimpleDeletePermission[CertificateTypeGQLModel](roles=["administrátor"])
+        permission_classes=[OnlyForAuthentized],
+        extensions=[
+            UserAbsoluteAccessControlExtension(roles=["administrátor"])
         ]
     )   
     async def certificate_type_delete(
         self,
         info: strawberry.Info,
-        certificate_type: CertificateTypeDeleteGQLModel
+        certificate_type: CertificateTypeDeleteGQLModel,
+        user_roles: typing.List[typing.Any] = None
     ) -> typing.Optional[DeleteError[CertificateTypeGQLModel]]:
         return await Delete[CertificateTypeGQLModel].DoItSafeWay(info=info, entity=certificate_type)
