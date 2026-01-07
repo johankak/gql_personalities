@@ -10,7 +10,6 @@ from src.DBDefinitions import (
     CertificateTypeModel,
     WorkHistoryPositionModel,
     StudyPlaceModel,
-    MedalCategoryModel,
     MedalTypeModel,
     UserStudyPlaceModel,
     UserWorkHistoryPositionModel,
@@ -34,7 +33,6 @@ class LoaderMap(LoaderMapBase[BaseModel]):
     UserRankModel: IDLoader[src.DBDefinitions.UserRankModel] = None
     WorkHistoryPositionModel: IDLoader[src.DBDefinitions.WorkHistoryPositionModel] = None
     StudyPlaceModel: IDLoader[src.DBDefinitions.StudyPlaceModel] = None 
-    MedalCategoryModel: IDLoader[src.DBDefinitions.MedalCategoryModel] = None
     MedalTypeModel: IDLoader[src.DBDefinitions.MedalTypeModel] = None
     UserStudyPlaceModel: IDLoader[src.DBDefinitions.UserStudyPlaceModel] = None
     UserWorkHistoryPositionModel: IDLoader[src.DBDefinitions.UserWorkHistoryPositionModel] = None
@@ -50,7 +48,6 @@ class LoaderMap(LoaderMapBase[BaseModel]):
         self.UserRankModel = self.get(UserRankModel)
         self.WorkHistoryPositionModel = self.get(WorkHistoryPositionModel)
         self.StudyPlaceModel = self.get(StudyPlaceModel)
-        self.MedalCategoryModel = self.get(MedalCategoryModel)
         self.MedalTypeModel = self.get(MedalTypeModel)
         self.UserStudyPlaceModel = self.get(UserStudyPlaceModel)
         self.UserWorkHistoryPositionModel = self.get(UserWorkHistoryPositionModel)

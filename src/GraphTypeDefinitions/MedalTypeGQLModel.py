@@ -36,13 +36,16 @@ from uoishelpers.gqlpermissions.UserAbsoluteAccessControlExtension import UserAb
 
 from .BaseGQLModel import BaseGQLModel, IDType, Relation
 
+# Dopředná deklarace pro rekurzivní typy
+MedalTypeGQLModel = typing.Annotated["MedalTypeGQLModel", strawberry.lazy(".MedalTypeGQLModel")]
+
 @createInputs2
 class MedalTypeInputFilter:
     name: str
     path: str
     level: int
     id: IDType
-    parent_id: IDType
+    master_medaltype_id: IDType
 
 @strawberry.federation.type(
     description="""Entity representing a MedalType""",
@@ -53,12 +56,34 @@ class MedalTypeGQLModel(BaseGQLModel):
     def getLoader(cls, info: strawberry.types.Info):
         return getLoadersFromInfo(info).MedalTypeModel
 
-    
+    path: typing.Optional[str] = strawberry.field(
+        description="""Materialized path representing the hierarchy location.""",
+        default=None,
+        permission_classes=[OnlyForAuthentized]
+    )
 
     name: typing.Optional[str] = strawberry.field(
         default=None,
         description="""MedalType name""",
         permission_classes=[OnlyForAuthentized]
+    )
+
+    master_medaltype_id: typing.Optional[IDType] = strawberry.field(
+        default=None,
+        description="""Parent MedalType ID""",
+        permission_classes=[OnlyForAuthentized]
+    )
+
+    master_medaltype: typing.Optional["MedalTypeGQLModel"] = strawberry.field(
+        description="""Parent MedalType""",
+        permission_classes=[OnlyForAuthentized],
+        resolver=ScalarResolver["MedalTypeGQLModel"](fkey_field_name="master_medaltype_id")
+    )
+
+    sub_medaltypes: typing.List["MedalTypeGQLModel"] = strawberry.field(
+        description="""Child MedalTypes""",
+        permission_classes=[OnlyForAuthentized],
+        resolver=VectorResolver["MedalTypeGQLModel"](fkey_field_name="master_medaltype_id", whereType=MedalTypeInputFilter)
     )
 
 
@@ -86,7 +111,7 @@ from uoishelpers.resolvers import TreeInputStructureMixin, InputModelMixin
 class MedalTypeInsertGQLModel(TreeInputStructureMixin):
     getLoader = MedalTypeGQLModel.getLoader
     
-    parent_id: typing.Optional[IDType] = strawberry.field(
+    master_medaltype_id: typing.Optional[IDType] = strawberry.field(
         description="""Parent MedalType id""",
         default=None
     )
@@ -101,7 +126,7 @@ class MedalTypeInsertGQLModel(TreeInputStructureMixin):
         default=None
     )
     
-    children: typing.Optional[typing.List["MedalTypeInsertGQLModel"]] = strawberry.field(
+    sub_medaltypes: typing.Optional[typing.List["MedalTypeInsertGQLModel"]] = strawberry.field(
         description="Child MedalTypes",
         default_factory=list
     )
@@ -123,7 +148,7 @@ class MedalTypeUpdateGQLModel:
         description="""MedalType name""",
         default=None
     )
-    parent_id: typing.Optional[IDType] = strawberry.field(
+    master_medaltype_id: typing.Optional[IDType] = strawberry.field(
         description="""Parent MedalType id""",
         default=None
     )

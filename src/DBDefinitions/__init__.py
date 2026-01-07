@@ -14,7 +14,6 @@ from .RankModel import RankModel
 from .CertificateTypeModel import CertificateTypeModel
 from .WorkHistoryPositionModel import WorkHistoryPositionModel
 from .StudyPlaceModel import StudyPlaceModel
-from .MedalCategoryModel import MedalCategoryModel
 from .MedalTypeModel import MedalTypeModel
 from .UserStudyPlaceModel import UserStudyPlaceModel
 from .UserWorkHistoryPositionModel import UserWorkHistoryPositionModel

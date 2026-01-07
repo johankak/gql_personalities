@@ -4,7 +4,6 @@ import strawberry
 from .EventGQLModel import EventMutation
 from .EventInvitationGQLModel import EventInvitationMutation
 from .MedalTypeGQLModel import MedalTypeMutation
-from .MedalCategoryGQLModel import MedalCategoryMutation
 from .RankGQLModel import RankMutation
 from .CertificateTypeGQLModel import CertificateTypeMutation
 from .WorkHistoryPositionGQLModel import WorkHistoryPositionMutation
@@ -16,7 +15,7 @@ from .UserCertificateTypeGQLModel import UserCertificateTypeMutation
 
 @strawberry.type(description="""Type for mutation root""")
 class Mutation(EventMutation, EventInvitationMutation, MedalTypeMutation, RankMutation, 
-               CertificateTypeMutation, MedalCategoryMutation, 
+               CertificateTypeMutation, 
                WorkHistoryPositionMutation, StudyPlaceMutation, UserRankMutation, UserStudyPlaceMutation,
                UserWorkHistoryPositionMutation, UserCertificateTypeMutation):
     pass
