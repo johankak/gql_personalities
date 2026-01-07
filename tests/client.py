@@ -286,6 +286,22 @@ async def test_medal_type_page(client):
     print("--- OK: MedalTypePage ---\n")
     return result
 
+async def test_user_medal_type_page(client):
+    print("--- Test: userMedaltypePage ---")
+    query = """query userMedaltypePage {
+        userMedaltypePage {
+            id
+            lastchange
+            userId
+            medaltypeId
+        }
+    }"""
+    result = await client(query, {})
+    basic_assertions(result)
+    has_field(result, "userMedaltypePage")
+    print("--- OK: userMedaltypePage ---\n")
+    return result
+
 # ==================================================================================
 # Mutation Tests (CUD operace)
 # ==================================================================================
@@ -1505,6 +1521,190 @@ async def test_medal_type_mutations(client):
              
     print("--- Finished: MedalType Mutations ---\n")
 
+async def user_medal_type_mutations(client):
+    """
+    CRUD testy pro vazební tabulku UserMedalType.
+    Testuje Insert, Update (včetně změny FK) a Delete.
+    """
+    print("--- Test: UserMedalType Mutations (Insert, Update, Delete) ---")
+    
+    # Pevné ID uživatele (stejné jako v ostatních testech)
+    umt_user_id = "14702c35-b0c1-4902-8e3b-722a9615466b"
+    available_medal_type_ids = []
+    
+    # Načtení dat ze systemdata.json pro validní FK (MedalType)
+    try:
+        if os.path.exists("systemdata.json"):
+            with open("systemdata.json", "r", encoding="utf-8") as f:
+                data = json.load(f)
+                # Předpokládáme klíč 'medaltypes'
+                mtypes = data.get("medaltypes", []) 
+                for mt in mtypes:
+                    if mt.get("id"):
+                        available_medal_type_ids.append(mt.get("id"))
+
+                if available_medal_type_ids:
+                    print(f"Loaded {len(available_medal_type_ids)} MedalType IDs from systemdata.json")
+                else:
+                    print("Warning: 'medaltypes' found but no IDs loaded")
+        else:
+            print("Warning: systemdata.json not found")
+    except Exception as e:
+        print(f"Error loading systemdata.json: {e}")
+
+    # Fallback pokud nejsou data
+    if not available_medal_type_ids:
+        print("Fallback: Using random MedalType ID (Expect Failure if ID doesn't exist in DB)")
+        available_medal_type_ids.append(str(uuid.uuid4()))
+
+    current_mt_id = available_medal_type_ids[0]
+    
+    # --- INSERT ---
+    print(f"Insert UserMedalType user_id={umt_user_id} medalTypeId={current_mt_id}")
+    
+    query_insert = """
+    mutation userMedalTypeInsert($userId: UUID!, $medalTypeId: UUID!) {
+        userMedalTypeInsert(
+            userMedalType: {
+                userId: $userId, 
+                medalTypeId: $medalTypeId,
+            }
+        ) {
+            __typename
+            ... on UserMedalTypeGQLModel {
+                id
+                lastchange
+                userId
+                medalTypeId
+            }
+            ... on UserMedalTypeGQLModelInsertError {
+                code
+                location
+                msg
+            }
+        }
+    }
+    """
+    
+    variables_insert = {"userId": umt_user_id, "medalTypeId": current_mt_id}
+    result_insert = await client(query_insert, variables_insert)
+    
+    if "errors" in result_insert:
+        print(f"Insert failed with errors: {result_insert['errors']}")
+        return
+
+    basic_assertions(result_insert)
+    data_insert = result_insert["data"]["userMedalTypeInsert"]
+    
+    # Kontrola na logickou chybu
+    if data_insert.get("__typename") == "UserMedalTypeGQLModelInsertError":
+        print(f"Insert returned logic error: {data_insert}")
+        return
+
+    if data_insert.get("__typename") != "UserMedalTypeGQLModel":
+        print(f"Insert returned unexpected type: {data_insert}")
+        return
+
+    print("Insert OK")
+    umt_id = data_insert["id"]
+    lastchange = data_insert["lastchange"]
+    
+    # --- UPDATE ---
+    # Pokud máme více typů medailí, zkusíme změnit vazbu
+    if len(available_medal_type_ids) > 1:
+        new_mt_id = available_medal_type_ids[1]
+    else:
+        print("Warning: Only one MedalType ID available. Reusing it for Update test.")
+        new_mt_id = available_medal_type_ids[0]
+
+    print(f"Update UserMedalType id={umt_id} -> new medalTypeId={new_mt_id}")
+    
+    query_update = """
+    mutation userMedalTypeUpdate($id: UUID!, $lastchange: DateTime!, $medalTypeId: UUID!) {
+        userMedalTypeUpdate(
+            userMedalType: {
+                id: $id, 
+                lastchange: $lastchange, 
+                medalTypeId: $medalTypeId,
+            }
+        ) {
+            __typename
+            ... on UserMedalTypeGQLModel {
+                id
+                lastchange
+                medalTypeId
+            }
+            ... on UserMedalTypeGQLModelUpdateError {
+                code
+                location
+                msg
+            }
+        }
+    }
+    """
+    
+    variables_update = {"id": umt_id, "lastchange": lastchange, "medalTypeId": new_mt_id}
+    result_update = await client(query_update, variables_update)
+    
+    if "errors" in result_update:
+        print(f"Update failed with errors: {result_update['errors']}")
+        return
+
+    basic_assertions(result_update)
+    data_update = result_update["data"]["userMedalTypeUpdate"]
+    
+    if data_update.get("__typename") == "UserMedalTypeGQLModelUpdateError":
+        print(f"Update returned logic error: {data_update}")
+        return
+
+    if data_update.get("__typename") != "UserMedalTypeGQLModel":
+        print(f"Update returned unexpected type: {data_update}")
+        return
+
+    print("Update OK")
+    lastchange_updated = data_update["lastchange"]
+
+    # --- DELETE ---
+    print(f"Delete UserMedalType id={umt_id}")
+    
+    query_delete = """
+    mutation userMedalTypeDelete($id: UUID!, $lastchange: DateTime!) {
+        userMedalTypeDelete(
+            userMedalType: {id: $id, lastchange: $lastchange}
+        ) {
+            __typename
+            ... on UserMedalTypeGQLModelDeleteError {
+                code
+                location
+                msg
+            }
+        }
+    }
+    """
+    
+    variables_delete = {"id": umt_id, "lastchange": lastchange_updated}
+    result_delete = await client(query_delete, variables_delete)
+    
+    if "errors" in result_delete:
+        print(f"Delete failed with errors: {result_delete['errors']}")
+        return
+
+    basic_assertions(result_delete)
+    data_delete = result_delete["data"]["userMedalTypeDelete"]
+    
+    if data_delete is None:
+        print("Delete OK (returned null)")
+    elif isinstance(data_delete, dict):
+        if data_delete.get("__typename") == "UserMedalTypeGQLModelDeleteError":
+             print(f"Delete failed with logic error: {data_delete}")
+        elif data_delete.get("failed"):
+            print(f"Delete failed: {data_delete}")
+        else:
+            print(f"Delete OK (returned object: {data_delete.get('__typename')})")
+    else:
+        print(f"Delete returned unexpected value: {data_delete}")
+             
+    print("--- Finished: UserMedalType Mutations ---\n")
 
 # ==================================================================================
 # Main Loop
@@ -1523,20 +1723,22 @@ async def main():
     # await test_work_history_position_page(client)
     # await test_certificate_type_page(client)
     # await test_user_certificate_type_page(client)
-    await test_medal_type_page(client)
+    # await test_medal_type_page(client)
+    await test_user_medal_type_page(client)
 
     # 2. Zápisy (Mutations)
     # await test_study_place_mutations(client)
     # await test_rank_mutations(client)
     # await work_history_position_mutations(client)
     # await test_certificate_type_mutations(client)
-    await test_medal_type_mutations(client)
+    # await test_medal_type_mutations(client)
 
     # 3. Zápisy pro vazební entity
     # await user_study_place_mutations(client)
     # await user_rank_mutations(client)
     # await user_work_history_position_mutations(client)
     # await user_certificate_type_mutations(client)
+    await user_medal_type_mutations(client)
 
 if __name__ == "__main__":
     asyncio.run(main())
