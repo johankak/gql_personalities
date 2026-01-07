@@ -1,96 +1,55 @@
-mutation certificateTypeInsert {
-  certificateTypeInsert(
-    certificateType: {id: "36914f1a-5b53-43bb-9b7e-0529ed2a1e06", masterCertificateTypeId: "3400df72-2c00-4b6a-8382-881450df3f9d", name: "NOVINKA"}
-  ) {
-    ... on CertificateTypeGQLModel {
-      id
-      name
-    }
-    ... on CertificateTypeGQLModelInsertError {
-      code
-      location
-    }
-  }
-}
-
-{
-  "data": {
-    "certificateTypeInsert": {
-      "id": "36914f1a-5b53-43bb-9b7e-0529ed2a1e06",
-      "name": "NOVINKA"
-    }
-  },
-  "extensions": {
-    "ProfilingExtension": {
-      "total": {
-        "count": 1,
-        "sum": 0.013968100000056438,
-        "values": [
-          0.013968100000056438
-        ]
-      }
-    }
-  }
-}
-
-
-
-mutation certificateTypeUpdate {
-  certificateTypeUpdate(
-    certificateType: {id: "36914f1a-5b53-43bb-9b7e-0529ed2a1e06", lastchange: "2026-01-05T18:44:42.593039", masterCertificateTypeId: "bc988cb6-38a7-45a1-97ec-d1e220621355", name: "BROKOLICE"}
-  ) {
-    ... on CertificateTypeGQLModel {
-      id
-      name
-    }
-    ... on CertificateTypeGQLModelUpdateError {
-      code
-      location
-    }
-  }
-}
-
-{
-  "data": {
-    "certificateTypeUpdate": {
-      "id": "36914f1a-5b53-43bb-9b7e-0529ed2a1e06",
-      "name": "BROKOLICE"
-    }
-  },
-  "extensions": {
-    "ProfilingExtension": {
-      "total": {
-        "count": 1,
-        "sum": 0.009079499999643303,
-        "values": [
-          0.009079499999643303
-        ]
-      }
-    }
-  }
-}
-
-mutation certificateTypeDelete {
-  certificateTypeDelete(certificateType: {id: "36914f1a-5b53-43bb-9b7e-0529ed2a1e06", lastchange: "2026-01-05T18:45:39.186590"}) {
-    failed
-    input
+mutation userMedalTypeDelete {
+  userMedalTypeDelete(userMedalType: {id: "ec0eac9b-dc40-4ff7-a891-cc48272d768e", lastchange: "2026-01-07T09:39:56.283758"}) {
     code
     location
-    msg
+    input
   }
 }
 
 {
   "data": {
-    "certificateTypeDelete": null
+    "userMedalTypeDelete": null
   },
   "extensions": {
     "ProfilingExtension": {
       "total": {
         "count": 1,
-        "sum": 0.010450300000229618,
+        "sum": 0.1457602999998926,
         "values": [
-          0.010450300000229618
+          0.1457602999998926
+        ]
+      }
+    }
+  }
+}
+
+
+mutation userMedalTypeUpdate {
+  userMedalTypeUpdate(userMedalType: {id: "ccd6d4c5-bb11-4f74-95b5-7421e03bc47c", lastchange: "2026-01-07T09:45:04.489840", medaltypeId: "1ebfd076-6cf2-11ed-a1eb-0242ac120002"}) {
+    ... on UserMedalTypeGQLModel {
+      id
+    }
+    ... on UserMedalTypeGQLModelUpdateError {
+      code
+      location
+    }
+  }
+}
+
+
+{
+  "data": {
+    "userMedalTypeUpdate": {
+      "id": "ccd6d4c5-bb11-4f74-95b5-7421e03bc47c"
+    }
+  },
+  "extensions": {
+    "ProfilingExtension": {
+      "total": {
+        "count": 1,
+        "sum": 0.11001520000013443,
+        "values": [
+          0.11001520000013443
         ]
       }
     }

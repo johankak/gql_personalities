@@ -1524,38 +1524,28 @@ async def test_medal_type_mutations(client):
 async def user_medal_type_mutations(client):
     """
     CRUD testy pro vazební tabulku UserMedalType.
-    Testuje Insert, Update (včetně změny FK) a Delete.
+    Upraveno dle 'moje_pomucka.txt'.
     """
     print("--- Test: UserMedalType Mutations (Insert, Update, Delete) ---")
     
-    # Pevné ID uživatele (stejné jako v ostatních testech)
     umt_user_id = "14702c35-b0c1-4902-8e3b-722a9615466b"
     available_medal_type_ids = []
     
-    # Načtení dat ze systemdata.json pro validní FK (MedalType)
+    # --- Načtení dat (ponecháno beze změny) ---
     try:
         if os.path.exists("systemdata.json"):
             with open("systemdata.json", "r", encoding="utf-8") as f:
                 data = json.load(f)
-                # Předpokládáme klíč 'medaltypes'
                 mtypes = data.get("medaltypes", []) 
                 for mt in mtypes:
                     if mt.get("id"):
                         available_medal_type_ids.append(mt.get("id"))
-
-                if available_medal_type_ids:
-                    print(f"Loaded {len(available_medal_type_ids)} MedalType IDs from systemdata.json")
-                else:
-                    print("Warning: 'medaltypes' found but no IDs loaded")
-        else:
-            print("Warning: systemdata.json not found")
     except Exception as e:
         print(f"Error loading systemdata.json: {e}")
 
-    # Fallback pokud nejsou data
     if not available_medal_type_ids:
-        print("Fallback: Using random MedalType ID (Expect Failure if ID doesn't exist in DB)")
-        available_medal_type_ids.append(str(uuid.uuid4()))
+        # Fallback ID
+        available_medal_type_ids.append("0747704c-d6f9-461c-9b2f-4b9681bd50ed")
 
     current_mt_id = available_medal_type_ids[0]
     
@@ -1564,18 +1554,13 @@ async def user_medal_type_mutations(client):
     
     query_insert = """
     mutation userMedalTypeInsert($userId: UUID!, $medalTypeId: UUID!) {
-        userMedalTypeInsert(
-            userMedalType: {
-                userId: $userId, 
-                medalTypeId: $medalTypeId,
-            }
-        ) {
+        userMedalTypeInsert(userMedalType: {userId: $userId, medaltypeId: $medalTypeId}) {
             __typename
             ... on UserMedalTypeGQLModel {
                 id
                 lastchange
                 userId
-                medalTypeId
+                medaltypeId
             }
             ... on UserMedalTypeGQLModelInsertError {
                 code
@@ -1596,13 +1581,12 @@ async def user_medal_type_mutations(client):
     basic_assertions(result_insert)
     data_insert = result_insert["data"]["userMedalTypeInsert"]
     
-    # Kontrola na logickou chybu
     if data_insert.get("__typename") == "UserMedalTypeGQLModelInsertError":
         print(f"Insert returned logic error: {data_insert}")
         return
 
-    if data_insert.get("__typename") != "UserMedalTypeGQLModel":
-        print(f"Insert returned unexpected type: {data_insert}")
+    if "lastchange" not in data_insert:
+        print(f"WARNING: Server did not return 'lastchange'. Data: {data_insert}")
         return
 
     print("Insert OK")
@@ -1619,25 +1603,25 @@ async def user_medal_type_mutations(client):
 
     print(f"Update UserMedalType id={umt_id} -> new medalTypeId={new_mt_id}")
     
+    # UPRAVENO: Argument 'medaltypeId' (malé t) dle 
     query_update = """
     mutation userMedalTypeUpdate($id: UUID!, $lastchange: DateTime!, $medalTypeId: UUID!) {
         userMedalTypeUpdate(
             userMedalType: {
                 id: $id, 
                 lastchange: $lastchange, 
-                medalTypeId: $medalTypeId,
+                medaltypeId: $medalTypeId
             }
         ) {
             __typename
             ... on UserMedalTypeGQLModel {
                 id
                 lastchange
-                medalTypeId
+                medaltypeId
             }
             ... on UserMedalTypeGQLModelUpdateError {
                 code
                 location
-                msg
             }
         }
     }
@@ -1667,17 +1651,15 @@ async def user_medal_type_mutations(client):
     # --- DELETE ---
     print(f"Delete UserMedalType id={umt_id}")
     
+    # UPRAVENO: Odstraněny fragmenty, požadovány přímo pole code/location/input dle 
     query_delete = """
     mutation userMedalTypeDelete($id: UUID!, $lastchange: DateTime!) {
         userMedalTypeDelete(
             userMedalType: {id: $id, lastchange: $lastchange}
         ) {
-            __typename
-            ... on UserMedalTypeGQLModelDeleteError {
-                code
-                location
-                msg
-            }
+            code
+            location
+            input
         }
     }
     """
@@ -1692,20 +1674,15 @@ async def user_medal_type_mutations(client):
     basic_assertions(result_delete)
     data_delete = result_delete["data"]["userMedalTypeDelete"]
     
+    # Dle  vrací úspěšný delete 'null'
     if data_delete is None:
         print("Delete OK (returned null)")
-    elif isinstance(data_delete, dict):
-        if data_delete.get("__typename") == "UserMedalTypeGQLModelDeleteError":
-             print(f"Delete failed with logic error: {data_delete}")
-        elif data_delete.get("failed"):
-            print(f"Delete failed: {data_delete}")
-        else:
-            print(f"Delete OK (returned object: {data_delete.get('__typename')})")
     else:
-        print(f"Delete returned unexpected value: {data_delete}")
+        # Pokud vrátí objekt, znamená to chybu (protože úspěch je null)
+        print(f"Delete returned object (likely error): {data_delete}")
              
     print("--- Finished: UserMedalType Mutations ---\n")
-
+    
 # ==================================================================================
 # Main Loop
 # ==================================================================================
