@@ -174,44 +174,47 @@ class MedalTypeDeleteGQLModel:
 class MedalTypeMutation:
     @strawberry.mutation(
         description="""Insert a MedalType""",
-        permission_classes=[
-            OnlyForAuthentized,
-            SimpleInsertPermission[MedalTypeGQLModel](roles=["administrátor"])
+        permission_classes=[OnlyForAuthentized],
+        extensions=[
+            UserAbsoluteAccessControlExtension(roles=["administrátor"])
         ]
     )
     async def MedalType_insert(
         self,
         info: strawberry.Info,
         MedalType: MedalTypeInsertGQLModel,
+        user_roles: typing.List[typing.Any] = None
     ) -> typing.Union[MedalTypeGQLModel, InsertError[MedalTypeGQLModel]]:
         return await Insert[MedalTypeGQLModel].DoItSafeWay(info=info, entity=MedalType)
     
 
     @strawberry.mutation(
         description="""Update a MedalType""",
-        permission_classes=[
-            OnlyForAuthentized,
-            SimpleUpdatePermission[MedalTypeGQLModel](roles=["administrátor"])
+        permission_classes=[OnlyForAuthentized],
+        extensions=[
+            UserAbsoluteAccessControlExtension(roles=["administrátor"])
         ]
     )
     async def MedalType_update(
         self,
         info: strawberry.Info,
-        MedalType: MedalTypeUpdateGQLModel
+        MedalType: MedalTypeUpdateGQLModel,
+        user_roles: typing.List[typing.Any] = None
     ) -> typing.Union[MedalTypeGQLModel, UpdateError[MedalTypeGQLModel]]:
         return await Update[MedalTypeGQLModel].DoItSafeWay(info=info, entity=MedalType)
     
 
     @strawberry.mutation(
         description="""Delete a MedalType""",
-        permission_classes=[
-            OnlyForAuthentized,
-            SimpleDeletePermission[MedalTypeGQLModel](roles=["administrátor"])
+        permission_classes=[OnlyForAuthentized],
+        extensions=[
+            UserAbsoluteAccessControlExtension(roles=["administrátor"])
         ]
     )   
     async def MedalType_delete(
         self,
         info: strawberry.Info,
-        MedalType: MedalTypeDeleteGQLModel
+        MedalType: MedalTypeDeleteGQLModel,
+        user_roles: typing.List[typing.Any] = None
     ) -> typing.Optional[DeleteError[MedalTypeGQLModel]]:
         return await Delete[MedalTypeGQLModel].DoItSafeWay(info=info, entity=MedalType)

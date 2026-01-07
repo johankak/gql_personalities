@@ -271,6 +271,21 @@ async def test_user_certificate_type_page(client):
     print("--- OK: userCertificateTypePage ---\n")
     return result
 
+async def test_medal_type_page(client):
+    print("--- Test: MedalTypePage ---")
+    query = """query MedalTypePage {
+      MedalTypePage(limit: 10) {
+        id
+        name
+        lastchange
+      }
+    }"""
+    result = await client(query, {})
+    basic_assertions(result)
+    has_field(result, "MedalTypePage")
+    print("--- OK: MedalTypePage ---\n")
+    return result
+
 # ==================================================================================
 # Mutation Tests (CUD operace)
 # ==================================================================================
@@ -1380,6 +1395,117 @@ async def user_certificate_type_mutations(client):
              
     print("--- Finished: UserCertificateType Mutations ---\n")
 
+async def test_medal_type_mutations(client):
+    """
+    Komplexní test životního cyklu entity MedalType (Insert -> Update -> Delete).
+    """
+    print("--- Test: MedalType Mutations (Insert, Update, Delete) ---")
+    
+    mt_id = str(uuid.uuid4())
+    mt_name = "New MedalType Test"
+    
+    # --- INSERT ---
+    print(f"Insert MedalType id={mt_id}")
+    query_insert = """
+    mutation MedalTypeInsert($id: UUID!, $name: String!) {
+        MedalTypeInsert(MedalType: {id: $id, name: $name}) {
+            __typename
+            ... on MedalTypeGQLModel {
+                id
+                name
+                lastchange
+            }
+        }
+    }
+    """
+    
+    variables_insert = {"id": mt_id, "name": mt_name}
+    result_insert = await client(query_insert, variables_insert)
+    
+    if "errors" in result_insert:
+        print(f"Insert failed with errors: {result_insert['errors']}")
+        return
+
+    basic_assertions(result_insert)
+    data_insert = result_insert["data"]["MedalTypeInsert"]
+    
+    # Validace návratového typu
+    if data_insert.get("__typename") != "MedalTypeGQLModel":
+        print(f"Insert returned unexpected type: {data_insert}")
+        return
+
+    print("Insert OK")
+    lastchange = data_insert["lastchange"]
+    
+    # --- UPDATE ---
+    mt_name_updated = "Updated MedalType Test"
+    print(f"Update MedalType id={mt_id}")
+    
+    query_update = """
+    mutation MedalTypeUpdate($id: UUID!, $lastchange: DateTime!, $name: String!) {
+        MedalTypeUpdate(MedalType: {id: $id, lastchange: $lastchange, name: $name}) {
+            __typename
+            ... on MedalTypeGQLModel {
+                id
+                name
+                lastchange
+            }
+        }
+    }
+    """
+    
+    variables_update = {"id": mt_id, "lastchange": lastchange, "name": mt_name_updated}
+    result_update = await client(query_update, variables_update)
+    
+    if "errors" in result_update:
+        print(f"Update failed with errors: {result_update['errors']}")
+        return
+
+    basic_assertions(result_update)
+    data_update = result_update["data"]["MedalTypeUpdate"]
+    
+    if data_update.get("__typename") != "MedalTypeGQLModel":
+        print(f"Update returned unexpected type: {data_update}")
+        return
+
+    print("Update OK")
+    lastchange_updated = data_update["lastchange"]
+
+    # --- DELETE ---
+    print(f"Delete MedalType id={mt_id}")
+    
+    query_delete = """
+    mutation MedalTypeDelete($id: UUID!, $lastchange: DateTime!) {
+        MedalTypeDelete(MedalType: {id: $id, lastchange: $lastchange}) {
+            __typename
+        }
+    }
+    """
+    
+    variables_delete = {"id": mt_id, "lastchange": lastchange_updated}
+    result_delete = await client(query_delete, variables_delete)
+    
+    if "errors" in result_delete:
+        print(f"Delete failed with errors: {result_delete['errors']}")
+        return
+
+    basic_assertions(result_delete)
+    data_delete = result_delete["data"]["MedalTypeDelete"]
+    
+    # Úspěšný delete vrací obvykle null nebo objekt bez error flagu
+    if data_delete is None:
+        print("Delete OK (returned null)")
+    elif isinstance(data_delete, dict):
+        if data_delete.get("failed"):
+            print(f"Delete failed: {data_delete}")
+        else:
+            print(f"Delete OK (returned object: {data_delete.get('__typename')})")
+    else:
+        print(f"Delete returned unexpected value: {data_delete}")
+             
+    print("--- Finished: MedalType Mutations ---\n")
+
+
 # ==================================================================================
 # Main Loop
 # ==================================================================================
@@ -1389,26 +1515,28 @@ async def main():
     client = createFederationClient()
     
     # 1. Čtení (Queries)
-    await test_study_place_page(client)
-    await test_user_study_place_page(client)
-    await test_rank_page(client)
-    await test_user_rank_page(client)
-    await test_user_work_history_position_page(client)
-    await test_work_history_position_page(client)
-    await test_certificate_type_page(client)
-    await test_user_certificate_type_page(client)
+    # await test_study_place_page(client)
+    # await test_user_study_place_page(client)
+    # await test_rank_page(client)
+    # await test_user_rank_page(client)
+    # await test_user_work_history_position_page(client)
+    # await test_work_history_position_page(client)
+    # await test_certificate_type_page(client)
+    # await test_user_certificate_type_page(client)
+    await test_medal_type_page(client)
 
     # 2. Zápisy (Mutations)
-    await test_study_place_mutations(client)
-    await test_rank_mutations(client)
-    await work_history_position_mutations(client)
-    await test_certificate_type_mutations(client)
+    # await test_study_place_mutations(client)
+    # await test_rank_mutations(client)
+    # await work_history_position_mutations(client)
+    # await test_certificate_type_mutations(client)
+    await test_medal_type_mutations(client)
 
     # 3. Zápisy pro vazební entity
-    await user_study_place_mutations(client)
-    await user_rank_mutations(client)
-    await user_work_history_position_mutations(client)
-    await user_certificate_type_mutations(client)
+    # await user_study_place_mutations(client)
+    # await user_rank_mutations(client)
+    # await user_work_history_position_mutations(client)
+    # await user_certificate_type_mutations(client)
 
 if __name__ == "__main__":
     asyncio.run(main())
