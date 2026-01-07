@@ -13,12 +13,13 @@ from .MedalTypeGQLModel import MedalTypeQuery
 from .UserStudyPlaceGQLModel import UserStudyPlaceQuery
 from .UserWorkHistoryPositionGQLModel import UserWorkHistoryPositionQuery
 from .UserCertificateTypeGQLModel import UserCertificateTypeQuery
+from .UserMedalTypeGQLModel import UserMedalTypeQuery
 
 @strawberry.type(description="""Type for query root""")
 class Query(EventQuery, EventInvitationQuery, RankQuery, CertificateTypeQuery, UserRankQuery, 
             WorkHistoryPositionQuery, StudyPlaceQuery, 
             MedalTypeQuery, UserStudyPlaceQuery, UserWorkHistoryPositionQuery,
-            UserCertificateTypeQuery):
+            UserCertificateTypeQuery, UserMedalTypeQuery):
     @strawberry.field(
         description="""Returns hello world"""
         )

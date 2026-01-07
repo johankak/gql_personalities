@@ -10932,6 +10932,14 @@
         "id": "36e1bc46-472c-4d43-b272-1fb994d581c6",
         "master_medaltype_id": "6299630e-4d27-44a9-a844-53831add33ca"
         }
+    ],
+    "user_medaltypes": [
+        {
+            "id": "ec0eac9b-dc40-4ff7-a891-cc48272d768e",
+            "user_id": "14702c35-b0c1-4902-8e3b-722a9615466b",
+            "medaltype_id": "cf4c2ef4-6cf1-11ed-a1eb-0242ac120002",
+            "rbacobject_id": "51d101a0-81f1-44ca-8366-6cf51432e8d6"
+        }
     ]
 }
 
