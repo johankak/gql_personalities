@@ -6,10 +6,7 @@ import strawberry
 
 import strawberry.types
 from uoishelpers.gqlpermissions import (
-    OnlyForAuthentized,
-    SimpleInsertPermission, 
-    SimpleUpdatePermission, 
-    SimpleDeletePermission
+    OnlyForAuthentized
 )    
 from uoishelpers.resolvers import (
     getLoadersFromInfo, 

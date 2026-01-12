@@ -5,10 +5,7 @@ import typing
 import strawberry
 
 from uoishelpers.gqlpermissions import (
-    OnlyForAuthentized,
-    SimpleInsertPermission, 
-    SimpleUpdatePermission, 
-    SimpleDeletePermission
+    OnlyForAuthentized
 )    
 from uoishelpers.resolvers import (
     getLoadersFromInfo, 
@@ -235,8 +232,7 @@ class UserCertificateTypeMutation:
     @strawberry.mutation(
         description="""Insert a UserCertificateType assignment""",
         permission_classes=[
-            OnlyForAuthentized,
-            SimpleInsertPermission[UserCertificateTypeGQLModel](roles=["administrátor", "personalista"])
+            OnlyForAuthentized
         ],
         extensions=[
             UserAccessControlExtension[InsertError, UserCertificateTypeGQLModel](roles=["administrátor", "personalista"]),
@@ -267,7 +263,6 @@ class UserCertificateTypeMutation:
         description="""Update the UserCertificateType assignment""",
         permission_classes=[
             OnlyForAuthentized,
-            SimpleUpdatePermission[UserCertificateTypeGQLModel](roles=["administrátor", "personalista"])
         ],
         extensions=[
             UserAccessControlExtension[UpdateError, UserCertificateTypeGQLModel](roles=["administrátor"]),
@@ -303,7 +298,6 @@ class UserCertificateTypeMutation:
         description="""Delete a UserCertificateType assignment""",
         permission_classes=[
             OnlyForAuthentized,
-            SimpleDeletePermission[UserCertificateTypeGQLModel](roles=["administrátor", "personalista"])
         ],
         extensions=[
             UserAccessControlExtension[DeleteError, UserCertificateTypeGQLModel](roles=["administrátor", "personalista"]),

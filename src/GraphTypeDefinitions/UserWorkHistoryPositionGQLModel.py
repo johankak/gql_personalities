@@ -5,10 +5,7 @@ import typing
 import strawberry
 
 from uoishelpers.gqlpermissions import (
-    OnlyForAuthentized,
-    SimpleInsertPermission, 
-    SimpleUpdatePermission, 
-    SimpleDeletePermission
+    OnlyForAuthentized
 )    
 from uoishelpers.resolvers import (
     getLoadersFromInfo, 
@@ -235,8 +232,7 @@ class UserWorkHistoryPositionMutation:
     @strawberry.mutation(
         description="""Insert a UserWorkHistoryPosition assignment""",
         permission_classes=[
-            OnlyForAuthentized,
-            SimpleInsertPermission[UserWorkHistoryPositionGQLModel](roles=["administrátor", "personalista"])
+            OnlyForAuthentized
         ],
         extensions=[
             UserAccessControlExtension[InsertError, UserWorkHistoryPositionGQLModel](roles=["administrátor", "personalista"]),
@@ -266,8 +262,7 @@ class UserWorkHistoryPositionMutation:
     @strawberry.mutation(
         description="""Update the UserWorkHistoryPosition assignment""",
         permission_classes=[
-            OnlyForAuthentized,
-            SimpleUpdatePermission[UserWorkHistoryPositionGQLModel](roles=["administrátor", "personalista"])
+            OnlyForAuthentized
         ],
         extensions=[
             UserAccessControlExtension[UpdateError, UserWorkHistoryPositionGQLModel](roles=["administrátor"]),
@@ -302,8 +297,7 @@ class UserWorkHistoryPositionMutation:
     @strawberry.mutation(
         description="""Delete a UserWorkHistoryPosition assignment""",
         permission_classes=[
-            OnlyForAuthentized,
-            SimpleDeletePermission[UserWorkHistoryPositionGQLModel](roles=["administrátor", "personalista"])
+            OnlyForAuthentized
         ],
         extensions=[
             UserAccessControlExtension[DeleteError, UserWorkHistoryPositionGQLModel](roles=["administrátor", "personalista"]),

@@ -5,10 +5,7 @@ import typing
 import strawberry
 
 from uoishelpers.gqlpermissions import (
-    OnlyForAuthentized,
-    SimpleInsertPermission, 
-    SimpleUpdatePermission, 
-    SimpleDeletePermission
+    OnlyForAuthentized
 )    
 from uoishelpers.resolvers import (
     getLoadersFromInfo, 
@@ -236,7 +233,6 @@ class UserMedalTypeMutation:
         description="""Insert a UserMedalType assignment""",
         permission_classes=[
             OnlyForAuthentized,
-            SimpleInsertPermission[UserMedalTypeGQLModel](roles=["administrátor", "personalista"])
         ],
         extensions=[
             UserAccessControlExtension[InsertError, UserMedalTypeGQLModel](roles=["administrátor", "personalista"]),
@@ -266,8 +262,7 @@ class UserMedalTypeMutation:
     @strawberry.mutation(
         description="""Update the UserMedalType assignment""",
         permission_classes=[
-            OnlyForAuthentized,
-            SimpleUpdatePermission[UserMedalTypeGQLModel](roles=["administrátor", "personalista"])
+            OnlyForAuthentized
         ],
         extensions=[
             UserAccessControlExtension[UpdateError, UserMedalTypeGQLModel](roles=["administrátor"]),
@@ -302,8 +297,7 @@ class UserMedalTypeMutation:
     @strawberry.mutation(
         description="""Delete a UserMedalType assignment""",
         permission_classes=[
-            OnlyForAuthentized,
-            SimpleDeletePermission[UserMedalTypeGQLModel](roles=["administrátor", "personalista"])
+            OnlyForAuthentized
         ],
         extensions=[
             UserAccessControlExtension[DeleteError, UserMedalTypeGQLModel](roles=["administrátor", "personalista"]),

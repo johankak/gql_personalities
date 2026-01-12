@@ -5,10 +5,7 @@ import typing
 import strawberry
 
 from uoishelpers.gqlpermissions import (
-    OnlyForAuthentized,
-    SimpleInsertPermission, 
-    SimpleUpdatePermission, 
-    SimpleDeletePermission
+    OnlyForAuthentized
 )    
 from uoishelpers.resolvers import (
     getLoadersFromInfo, 
@@ -237,7 +234,6 @@ class UserRankMutation:
         description="""Insert a UserRank assignment""",
         permission_classes=[
             OnlyForAuthentized,
-            SimpleInsertPermission[UserRankGQLModel](roles=["administrátor", "personalista"])
         ],
         extensions=[
             UserAccessControlExtension[InsertError, UserRankGQLModel](roles=["administrátor", "personalista"]),
@@ -267,8 +263,7 @@ class UserRankMutation:
     @strawberry.mutation(
         description="""Update the UserRank assignment""",
         permission_classes=[
-            OnlyForAuthentized,
-            SimpleUpdatePermission[UserRankGQLModel](roles=["administrátor", "personalista"])
+            OnlyForAuthentized
         ],
         extensions=[
             UserAccessControlExtension[UpdateError, UserRankGQLModel](roles=["administrátor"]),
@@ -304,8 +299,7 @@ class UserRankMutation:
     @strawberry.mutation(
         description="""Delete a UserRank assignment""",
         permission_classes=[
-            OnlyForAuthentized,
-            SimpleDeletePermission[UserRankGQLModel](roles=["administrátor", "personalista"])
+            OnlyForAuthentized
         ],
         extensions=[
             UserAccessControlExtension[DeleteError, UserRankGQLModel](roles=["administrátor", "personalista"]),

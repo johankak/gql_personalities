@@ -35,3 +35,5 @@ class UserRankModel(BaseModel):
     enddate: Mapped[datetime.datetime] = mapped_column(default=None, nullable=True)
     user_id: Mapped[IDType] = UUIDFKey(nullable=True)
     rank_id: Mapped[IDType] = mapped_column(ForeignKey("ranks.id"), default=None, nullable=True)
+
+#TODO VALID
