@@ -23,13 +23,6 @@ from .BaseModel import BaseModel, UUIDColumn, UUIDFKey, IDType
 ###########################################################################################################################
 class UserMedalTypeModel(BaseModel):
     __tablename__ = "user_medaltypes"
-
-    path_attribute_name = "path"
-    parent_attribute_name = "masterevent"
-    parent_id_attribute_name = "masterevent_id"
-    children_attribute_name = "subevents"
-
-    # Materialized path technique
     
     startdate: Mapped[datetime.datetime] = mapped_column(default=None, nullable=True)
     enddate: Mapped[datetime.datetime] = mapped_column(default=None, nullable=True)
