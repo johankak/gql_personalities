@@ -12,22 +12,20 @@ from sqlalchemy.orm import Mapped, mapped_column, synonym, relationship
 
 from .BaseModel import BaseModel, UUIDColumn, UUIDFKey, IDType
 
-###########################################################################################################################
-#
-# zde definujte sve SQLAlchemy modely
-# je-li treba, muzete definovat modely obsahujici jen id polozku, na ktere se budete odkazovat
-#
-###########################################################################################################################
 class WorkHistoryPositionModel(BaseModel):
+    """
+    Katalog pracovních pozic.
+    Využívá techniku 'Materialized Path' pro ukládání stromové struktury (nadřízené/podřízené pozice).
+    """
     __tablename__ = "workhistorypositions"
 
-    # Konfigurace pro stromovou strukturu (názvy atributů v tomto modelu)
+    # --- Konfigurace pro stromovou strukturu ---
     path_attribute_name = "path"
     parent_attribute_name = "master_workhistoryposition"
     parent_id_attribute_name = "master_workhistoryposition_id"
     children_attribute_name = "sub_workhistorypositions"
     
-    # Materialized path column
+    # Slouží k rychlému vyhledávání podstromů
     path: Mapped[str] = mapped_column(
         index=True,
         nullable=True,
@@ -35,9 +33,10 @@ class WorkHistoryPositionModel(BaseModel):
         comment="Materialized path technique"
     )
     
+    # Název pracovní pozice
     name: Mapped[str] = mapped_column(default=None, nullable=True)
 
-    # Cizí klíč na rodiče
+    # Cizí klíč na nadřízenou pozici (Rodič)
     master_workhistoryposition_id: Mapped[IDType] = mapped_column(
         ForeignKey("workhistorypositions.id"),
         nullable=True,
@@ -45,7 +44,7 @@ class WorkHistoryPositionModel(BaseModel):
         index=True,
     )
 
-    # Relace na rodiče
+    # Relace na rodiče (View Only - pro čtení)
     master_workhistoryposition = relationship(
         "WorkHistoryPositionModel",
         viewonly=True, 
@@ -54,7 +53,7 @@ class WorkHistoryPositionModel(BaseModel):
         back_populates="sub_workhistorypositions",
     )
 
-    # Relace na děti
+    # Relace na podřízené pozice (Děti)
     sub_workhistorypositions = relationship(
         "WorkHistoryPositionModel",
         back_populates="master_workhistoryposition",

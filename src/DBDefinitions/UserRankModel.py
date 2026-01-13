@@ -15,18 +15,21 @@ from sqlalchemy.orm import relationship, column_property
 
 from .BaseModel import BaseModel, UUIDColumn, UUIDFKey, IDType
 
-###########################################################################################################################
-#
-# zde definujte sve SQLAlchemy modely
-# je-li treba, muzete definovat modely obsahujici jen id polozku, na ktere se budete odkazovat
-#
-###########################################################################################################################
 class UserRankModel(BaseModel):
+    """
+    Model pro přiřazení hodnosti (Rank) uživateli.
+    Sleduje historii hodností díky časovému omezení (startdate/enddate).
+    """
     __tablename__ = "user_ranks"
     
+    # Datum získání hodnosti
     startdate: Mapped[datetime.datetime] = mapped_column(default=None, nullable=True)
+    
+    # Datum ukončení platnosti hodnosti (např. při povýšení)
     enddate: Mapped[datetime.datetime] = mapped_column(default=None, nullable=True)
+    
+    # ID uživatele
     user_id: Mapped[IDType] = UUIDFKey(nullable=True)
+    
+    # ID hodnosti z katalogu (RankModel)
     rank_id: Mapped[IDType] = mapped_column(ForeignKey("ranks.id"), default=None, nullable=True)
-
-#TODO VALID

@@ -13,15 +13,19 @@ from sqlalchemy.orm import Mapped, mapped_column, synonym, relationship
 from .BaseModel import BaseModel, UUIDColumn, UUIDFKey, IDType
 
 class StudyPlaceModel(BaseModel):
+    """
+    Katalog studijních míst (školy, fakulty, katedry).
+    Využívá hierarchickou strukturu (strom).
+    """
     __tablename__ = "studyplaces"
 
-    # Konfigurace pro stromovou strukturu
+    # --- Konfigurace stromu ---
     path_attribute_name = "path"
     parent_attribute_name = "master_studyplace"
     parent_id_attribute_name = "master_studyplace_id"
     children_attribute_name = "sub_studyplaces"
     
-    # Materialized path column
+    # Cesta ve stromu (Materialized Path)
     path: Mapped[str] = mapped_column(
         index=True,
         nullable=True,
@@ -29,9 +33,10 @@ class StudyPlaceModel(BaseModel):
         comment="Materialized path technique"
     )
     
+    # Název školy/místa
     name: Mapped[str] = mapped_column(default=None, nullable=True)
 
-    # Cizí klíč na rodiče
+    # ID nadřízeného místa (např. Univerzita -> Fakulta)
     master_studyplace_id: Mapped[IDType] = mapped_column(
         ForeignKey("studyplaces.id"),
         nullable=True,
@@ -39,7 +44,7 @@ class StudyPlaceModel(BaseModel):
         index=True,
     )
 
-    # Relace na rodiče
+    # Relace na nadřízenou položku
     master_studyplace = relationship(
         "StudyPlaceModel",
         viewonly=True, 
@@ -48,7 +53,7 @@ class StudyPlaceModel(BaseModel):
         back_populates="sub_studyplaces",
     )
 
-    # Relace na děti
+    # Relace na podřízené položky
     sub_studyplaces = relationship(
         "StudyPlaceModel",
         back_populates="master_studyplace",

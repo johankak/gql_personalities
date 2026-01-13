@@ -15,16 +15,20 @@ from sqlalchemy.orm import relationship, column_property
 
 from .BaseModel import BaseModel, UUIDColumn, UUIDFKey, IDType
 
-###########################################################################################################################
-#
-# zde definujte sve SQLAlchemy modely
-# je-li treba, muzete definovat modely obsahujici jen id polozku, na ktere se budete odkazovat
-#
-###########################################################################################################################
 class UserCertificateTypeModel(BaseModel):
+    """
+    Model pro evidenci certifikátů získaných uživatelem.
+    """
     __tablename__ = "user_certificatetypes"
     
+    # Datum získání/platnosti certifikátu
     startdate: Mapped[datetime.datetime] = mapped_column(default=None, nullable=True)
+    
+    # Datum expirace certifikátu
     enddate: Mapped[datetime.datetime] = mapped_column(default=None, nullable=True)
+    
+    # ID uživatele
     user_id: Mapped[IDType] = UUIDFKey(nullable=True)
+    
+    # ID typu certifikátu (katalog CertificateTypeModel)
     certificate_type_id: Mapped[IDType] = mapped_column(ForeignKey("certificatetypes.id"), default=None, nullable=True)

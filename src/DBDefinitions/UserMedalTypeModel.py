@@ -15,16 +15,18 @@ from sqlalchemy.orm import relationship, column_property
 
 from .BaseModel import BaseModel, UUIDColumn, UUIDFKey, IDType
 
-###########################################################################################################################
-#
-# zde definujte sve SQLAlchemy modely
-# je-li treba, muzete definovat modely obsahujici jen id polozku, na ktere se budete odkazovat
-#
-###########################################################################################################################
 class UserMedalTypeModel(BaseModel):
+    """
+    Model reprezentující přiřazení konkrétního typu medaile konkrétnímu uživateli.
+    """
     __tablename__ = "user_medaltypes"
     
     startdate: Mapped[datetime.datetime] = mapped_column(default=None, nullable=True)
+    
     enddate: Mapped[datetime.datetime] = mapped_column(default=None, nullable=True)
+    
+    # Cizí klíč na uživatele
     user_id: Mapped[IDType] = UUIDFKey(nullable=True)
+    
+    # Cizí klíč na typ medaile (katalog MedalTypeModel)
     medaltype_id: Mapped[IDType] = mapped_column(ForeignKey("medaltypes.id"), default=None, nullable=True)

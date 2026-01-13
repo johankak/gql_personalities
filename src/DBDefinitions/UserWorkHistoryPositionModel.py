@@ -15,16 +15,20 @@ from sqlalchemy.orm import relationship, column_property
 
 from .BaseModel import BaseModel, UUIDColumn, UUIDFKey, IDType
 
-###########################################################################################################################
-#
-# zde definujte sve SQLAlchemy modely
-# je-li treba, muzete definovat modely obsahujici jen id polozku, na ktere se budete odkazovat
-#
-###########################################################################################################################
 class UserWorkHistoryPositionModel(BaseModel):
+    """
+    Eviduje pracovní historii uživatele (přiřazení k pracovním pozicím v čase).
+    """
     __tablename__ = "user_workhistorypositions"
     
+    # Datum nástupu na pozici
     startdate: Mapped[datetime.datetime] = mapped_column(default=None, nullable=True)
+    
+    # Datum odchodu z pozice
     enddate: Mapped[datetime.datetime] = mapped_column(default=None, nullable=True)
+    
+    # ID uživatele
     user_id: Mapped[IDType] = UUIDFKey(nullable=True)
+    
+    # ID pracovní pozice (WorkHistoryPositionModel)
     workhistoryposition_id: Mapped[IDType] = mapped_column(ForeignKey("workhistorypositions.id"), default=None, nullable=True)

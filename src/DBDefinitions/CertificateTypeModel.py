@@ -13,15 +13,18 @@ from sqlalchemy.orm import Mapped, mapped_column, synonym, relationship
 from .BaseModel import BaseModel, UUIDColumn, UUIDFKey, IDType
 
 class CertificateTypeModel(BaseModel):
+    """
+    Katalog typů certifikátů.
+    """
     __tablename__ = "certificatetypes"
 
-    # Konfigurace pro stromovou strukturu (názvy atributů v tomto modelu)
+    # --- Konfigurace stromu ---
     path_attribute_name = "path"
     parent_attribute_name = "master_certificate_type"
     parent_id_attribute_name = "master_certificate_type_id"
     children_attribute_name = "sub_certificate_types"
 
-    # Materialized path column
+    # Materialized path pro strom
     path: Mapped[str] = mapped_column(
         index=True,
         nullable=True,
@@ -29,9 +32,10 @@ class CertificateTypeModel(BaseModel):
         comment="Materialized path technique"
     )
 
+    # Název certifikátu
     name: Mapped[str] = mapped_column(default=None, nullable=True)
 
-    # Cizí klíč na rodiče (přejmenováno na master_certificate_type_id)
+    # ID nadřízeného typu certifikátu
     master_certificate_type_id: Mapped[IDType] = mapped_column(
         ForeignKey("certificatetypes.id"),
         nullable=True,
@@ -48,7 +52,7 @@ class CertificateTypeModel(BaseModel):
         back_populates="sub_certificate_types",
     )
 
-    # Relace na děti (podtypy)
+    # Relace na podřízené typy (děti)
     sub_certificate_types = relationship(
         "CertificateTypeModel",
         back_populates="master_certificate_type",

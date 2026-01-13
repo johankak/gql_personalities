@@ -15,21 +15,11 @@ from sqlalchemy.orm import relationship, column_property
 
 from .BaseModel import BaseModel, UUIDColumn, UUIDFKey, IDType
 
-###########################################################################################################################
-#
-# zde definujte sve SQLAlchemy modely
-# je-li treba, muzete definovat modely obsahujici jen id polozku, na ktere se budete odkazovat
-#
-###########################################################################################################################
 class RankModel(BaseModel):
+    """
+    Katalog hodností
+    """
     __tablename__ = "ranks"
 
-    # Materialized path technique
-    parent_attribute_name = "parent"
-    path_attribute_name = "path"
-    children_attribute_name = "children"
-    parent_id_attribute_name = "parent_id"
-
+    # Název hodnosti
     name: Mapped[str] = mapped_column(default=None, nullable=True)
-
-    

@@ -15,16 +15,20 @@ from sqlalchemy.orm import relationship, column_property
 
 from .BaseModel import BaseModel, UUIDColumn, UUIDFKey, IDType
 
-###########################################################################################################################
-#
-# zde definujte sve SQLAlchemy modely
-# je-li treba, muzete definovat modely obsahujici jen id polozku, na ktere se budete odkazovat
-#
-###########################################################################################################################
 class UserStudyPlaceModel(BaseModel):
+    """
+    Eviduje vazbu mezi uživatelem a studijním místem (např. studium na škole).
+    """
     __tablename__ = "user_studyplaces"
     
+    # Datum nástupu ke studiu
     startdate: Mapped[datetime.datetime] = mapped_column(default=None, nullable=True)
+    
+    # Datum ukončení studia
     enddate: Mapped[datetime.datetime] = mapped_column(default=None, nullable=True)
+    
+    # ID studenta/uživatele
     user_id: Mapped[IDType] = UUIDFKey(nullable=True)
+    
+    # ID školy (StudyPlaceModel)
     studyplace_id: Mapped[IDType] = mapped_column(ForeignKey("studyplaces.id"), default=None, nullable=True)
